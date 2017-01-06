@@ -17,6 +17,7 @@
     <modules>
         <module>mtwilson-trustagent-attestation-client-jaxrs2</module>
         <module>mtwilson-trustagent-attestation-model</module>
+        <module>mtwilson-trustagent-client-jaxrs2</module>
         <module>mtwilson-trustagent-configuration</module>
         <module>mtwilson-trustagent-console</module>
         <module>mtwilson-trustagent-model</module>
