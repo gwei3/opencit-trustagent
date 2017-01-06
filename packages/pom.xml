@@ -8,8 +8,9 @@
     <packaging>pom</packaging>
     
     <modules>
-        <module>cit-trustagent-linux</module>
-        <module>cit-trustagent-zip</module>
+        <module>trustagent-linux</module>
+        <module>trustagent-windows</module>
+        <module>trustagent-zip</module>
     </modules>
     
 </project>
