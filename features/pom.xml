@@ -1,31 +1,32 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     
-    <groupId>com.intel.mtwilson.features</groupId>
-    <artifactId>mtwilson-features</artifactId>
+    <groupId>com.intel.mtwilson.trustagent.features</groupId>
+    <artifactId>trustagent-maven-build-features</artifactId>
     <version>2.2-SNAPSHOT</version>
     
     <packaging>pom</packaging>
-    <name>mtwilson-features</name>
     
     <parent>
         <groupId>com.intel.mtwilson.maven</groupId>
-        <artifactId>mtwilson-dist-feature</artifactId>
+        <artifactId>mtwilson-maven-java</artifactId>
         <version>2.2-SNAPSHOT</version>
-        <relativePath />
+        <relativePath/>
     </parent>
     
-    <properties>
-        <license.copyright>2014 Intel Corporation. All rights reserved.</license.copyright>
-        <license.url>http://cscenter.intel.com/portal/</license.url>
-    </properties>
-    
     <modules>
-        <module>mtwilson-citrix-attestation</module>
-        <module>mtwilson-intel-attestation</module>
-        <module>mtwilson-vmware-attestation</module>
-        <module>mtwilson-export-data-bundle</module>
-        <module>mtwilson-localization-es</module>
+        <module>mtwilson-trustagent-attestation-client-jaxrs2</module>
+        <module>mtwilson-trustagent-attestation-model</module>
+        <module>mtwilson-trustagent-configuration</module>
+        <module>mtwilson-trustagent-console</module>
+        <module>mtwilson-trustagent-model</module>
+        <module>mtwilson-trustagent-privacyca-niarl</module>
+        <module>mtwilson-trustagent-setup</module>
+        <module>mtwilson-trustagent-tpm2-packages</module>
+        <module>mtwilson-trustagent-tpm-tools</module>
+        <module>mtwilson-trustagent-vmquote-xml</module>
+        <module>mtwilson-trustagent-vrtmclient</module>
+        <module>mtwilson-trustagent-ws-v2</module>
     </modules>
     
 </project>
