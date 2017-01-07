@@ -1,7 +1,7 @@
 #!/bin/bash
 buildSpecsDirectory="/home/klocwork/kw_build_specs"
 tablesDirectory="/home/klocwork/kwtables"
-klocworkProject="dcg_security-mtwilson"
+klocworkProject="dcg_security-trustagent"
 klocworkServerUrl="https://klocwork-jf18.devtools.intel.com:8160"
 
 initialize() {
