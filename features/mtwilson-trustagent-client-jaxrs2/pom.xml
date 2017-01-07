@@ -5,7 +5,6 @@
     <artifactId>mtwilson-trustagent-client-jaxrs2</artifactId>
     
     <packaging>jar</packaging>
-    <name>mtwilson-trustagent-client-jaxrs2</name>
     <description>
         Java client for Trust Agent Web Service v2; this client is used by mtwilson-intel-hostagent to 
         connect to Trust Agent
