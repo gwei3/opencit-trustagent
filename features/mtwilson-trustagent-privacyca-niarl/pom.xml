@@ -57,7 +57,7 @@
         <dependency>
             <groupId>com.intel.mtwilson.trustagent.features</groupId>
             <artifactId>mtwilson-trustagent-tpm-tools</artifactId>
-            <version>2.2-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         
         <dependency>
