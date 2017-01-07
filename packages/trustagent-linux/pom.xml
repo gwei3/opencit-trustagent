@@ -61,21 +61,6 @@
                     <version>${project.version}</version>
                     <type>sh</type>
                 </dependency>
-<!--                <dependency>
-                    <groupId>com.intel.mtwilson.linux</groupId>
-                    <artifactId>java</artifactId>
-                    <version>1.7.0_51</version>
-                    <type>bin</type>
-                </dependency>-->
-                <!--
-                <dependency>
-                    <groupId>com.intel.mtwilson.tbootxm.packages</groupId>
-                    <artifactId>tbootxm</artifactId>
-                    <version>${project.version}</version>
-                    <type>bin</type>
-                    <classifier>ubuntu</classifier>
-                </dependency>
-                -->
                 <dependency>
                     <groupId>com.intel.mtwilson.trustagent.features</groupId>
                     <artifactId>mtwilson-trustagent-tpm2-packages</artifactId>
@@ -107,21 +92,11 @@
                     <groupId>ch.qos.logback</groupId>
                     <artifactId>logback-classic</artifactId>
                 </dependency>
-                <!-- Bug #4244: replaced oracle downloaded bin installer for jdk 1.7 with mtwilson build java installer bin to support fedora -->				
-                <!--
-                <dependency>
-                    <groupId>com.oracle</groupId>
-                    <artifactId>jdk</artifactId>
-                    <version>1.7.0_51</version>
-                    <type>bin</type>
-                    <classifier>linux-x64</classifier>
-                </dependency>
-                -->
             </dependencies>
             
             <build>
                 <plugins>
-                    <!-- begin copy artifacts plugin -->
+                    <!-- copy artifacts plugin -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-dependency-plugin</artifactId>
@@ -152,34 +127,6 @@
                                             <outputDirectory>${makeself.directory}</outputDirectory>
                                             <destFileName>functions</destFileName>
                                         </artifactItem>
-                                        <!-- Bug #4244: replaced oracle downloaded bin installer for jdk 1.7 with mtwilson build java installer bin to support fedora -->
-                                        <!--<artifactItem>
-                                            <groupId>com.oracle</groupId>
-                                            <artifactId>jdk</artifactId>
-                                            <version>1.7.0_51</version>
-                                            <type>bin</type>
-                                            <classifier>linux-x64</classifier>
-                                            <outputDirectory>${makeself.directory}</outputDirectory>
-                                            <destFileName>jdk-1.7.0_51-linux-x64.bin</destFileName>
-                                        </artifactItem>-->
-<!--                                        <artifactItem>
-                                            <groupId>com.intel.mtwilson.linux</groupId>
-                                            <artifactId>java</artifactId>
-                                            <version>1.7.0_51</version>
-                                            <type>bin</type>
-                                            <outputDirectory>${makeself.directory}</outputDirectory>
-                                            <destFileName>java-1.7.0_51.bin</destFileName>
-                                        </artifactItem>-->
-                                        <!--
-                                        <artifactItem>
-                                            <groupId>com.intel.mtwilson.tbootxm.packages</groupId>
-                                            <artifactId>tbootxm</artifactId>
-                                            <version>${project.version}</version>
-                                            <type>bin</type>
-                                            <classifier>ubuntu</classifier>
-                                            <outputDirectory>${makeself.directory}</outputDirectory>
-                                        </artifactItem>
-                                        -->
                                         <artifactItem>
                                             <groupId>com.intel.mtwilson.trustagent.features</groupId>
                                             <artifactId>mtwilson-trustagent-tpm2-packages</artifactId>
@@ -206,16 +153,14 @@
                                         </artifactItem>
                                         -->
                                     </artifactItems>
-                                    <!--<outputDirectory>${project.build.directory}/wars</outputDirectory>-->
                                     <overWriteReleases>false</overWriteReleases>
                                     <overWriteSnapshots>true</overWriteSnapshots>
                                 </configuration>
                             </execution>
                         </executions>
                     </plugin>
-                    <!-- end copy artifacts plugin -->
                     
-                    <!-- begin copy other resources plugin -->
+                    <!-- copy other resources plugin -->
                     <plugin>
                         <artifactId>maven-resources-plugin</artifactId>
                         <version>2.5</version>
@@ -237,7 +182,7 @@
                                             <filtering>false</filtering>
                                         </resource>
                                     </resources>
-                                </configuration>            
+                                </configuration>
                             </execution>
                             <execution>
                                 <id>copy-resources</id>
@@ -267,7 +212,6 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <!-- end copy other resources plugin -->
                     
                     <!-- get tboot and tbootxm dependencies plugin -->
                     <plugin>
@@ -344,7 +288,6 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <!-- end create self-extracting installer plugin -->
                 </plugins>
             </build>
         </profile>

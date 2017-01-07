@@ -1,11 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     
-    <groupId>com.intel.mtwilson.trustagent</groupId>
+    <groupId>com.intel.mtwilson.trustagent.features</groupId>
     <artifactId>mtwilson-trustagent-tpm-tools</artifactId>
     
     <packaging>jar</packaging>
-    <name>mtwilson-trustagent-tpm-tools</name>
     
     <parent>
         <groupId>com.intel.mtwilson.trustagent.features</groupId>
@@ -34,15 +33,8 @@
         </dependency>
         
         <!-- trustagent -->
-        <!--
         <dependency>
-            <groupId>com.intel.mtwilson.integration</groupId>
-            <artifactId>mtwilson-my</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        -->
-        <dependency>
-            <groupId>com.intel.mtwilson.trustagent</groupId>
+            <groupId>com.intel.mtwilson.trustagent.features</groupId>
             <artifactId>mtwilson-trustagent-configuration</artifactId>
             <version>${project.version}</version>
         </dependency>

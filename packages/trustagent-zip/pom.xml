@@ -120,11 +120,15 @@
         <!-- common-java -->
         <dependency>
             <groupId>com.intel.mtwilson.integration</groupId>
+            <artifactId>mtwilson-configuration</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.intel.mtwilson.integration</groupId>
             <artifactId>mtwilson-launcher</artifactId>
         </dependency>
         <dependency>
             <groupId>com.intel.mtwilson.integration</groupId>
-            <artifactId>mtwilson-configuration</artifactId>
+            <artifactId>mtwilson-password-vault</artifactId>
         </dependency>
         <dependency>
             <groupId>com.intel.mtwilson.services</groupId>
@@ -135,45 +139,32 @@
             <artifactId>mtwilson-http-servlets</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.intel.mtwilson.util</groupId>
-            <artifactId>mtwilson-util-jaxrs2</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.intel.mtwilson.integration</groupId>
-            <artifactId>mtwilson-password-vault</artifactId>
-        </dependency>
-        
-        <!-- trustagent -->
-        <!--
-        <dependency>
-            <groupId>com.intel.mtwilson.services</groupId>
-            <artifactId>mtwilson-jersey2-util</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        -->
-        <dependency>
-            <groupId>com.intel.mtwilson.trustagent</groupId>
-            <artifactId>mtwilson-trustagent-console</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.intel.mtwilson.trustagent</groupId>
-            <artifactId>mtwilson-trustagent-setup</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.intel.mtwilson.trustagent</groupId>
-            <artifactId>mtwilson-trustagent-ws-v2</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.intel.mtwilson.services</groupId>
             <artifactId>mtwilson-version-ws-v2</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.intel.mtwilson.services</groupId>
             <artifactId>mtwilson-webservice-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.intel.mtwilson.util</groupId>
+            <artifactId>mtwilson-util-jaxrs2</artifactId>
+        </dependency>
+        
+        <!-- trustagent -->
+        <dependency>
+            <groupId>com.intel.mtwilson.trustagent.features</groupId>
+            <artifactId>mtwilson-trustagent-console</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.intel.mtwilson.trustagent.features</groupId>
+            <artifactId>mtwilson-trustagent-setup</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.intel.mtwilson.trustagent.features</groupId>
+            <artifactId>mtwilson-trustagent-ws-v2</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
