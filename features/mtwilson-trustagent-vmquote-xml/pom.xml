@@ -58,6 +58,16 @@
     </build>
     
     <dependencies>
+        <!-- common-java -->
+        <dependency>
+            <groupId>com.intel.mtwilson.util</groupId>
+            <artifactId>mtwilson-util-crypto</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.intel.mtwilson.util</groupId>
+            <artifactId>mtwilson-util-xml</artifactId>
+        </dependency>
+        
         <!-- was: 2.2.7-b63 -->
         <dependency>
             <artifactId>jaxb-impl</artifactId>
@@ -155,15 +165,6 @@
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>com.intel.mtwilson.util</groupId>
-            <artifactId>mtwilson-util-crypto</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.intel.mtwilson.util</groupId>
-            <artifactId>mtwilson-util-xml</artifactId>
         </dependency>
     </dependencies>
     
