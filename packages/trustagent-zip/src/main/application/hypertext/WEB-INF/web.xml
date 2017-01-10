@@ -46,7 +46,7 @@
         <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
         <init-param>
             <param-name>javax.ws.rs.Application</param-name>
-            <param-value>com.intel.mtwilson.jersey2.Jersey2Application2</param-value>
+            <param-value>com.intel.mtwilson.jersey2.ExtensibleResourceConfig</param-value>
         </init-param>
         <init-param>
             <param-name>jersey.config.server.mediaTypeMappings</param-name>
