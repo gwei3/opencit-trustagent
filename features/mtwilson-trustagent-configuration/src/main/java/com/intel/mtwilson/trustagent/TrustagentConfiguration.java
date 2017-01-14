@@ -414,6 +414,10 @@ public class TrustagentConfiguration {
     public File getBindingKeyBlobFile() {
         return new File(Folders.configuration() + File.separator + "bindingkey.blob");        
     }
+    
+    public File getBindingKeyOpaqueBlobFile() {
+        return new File(Folders.configuration() + File.separator + "bindingkey.opaque");        
+    }
 
     // Helper methods for the Signing key
     public String getSigningKeySecretHex() {
@@ -451,6 +455,10 @@ public class TrustagentConfiguration {
 
     public File getSigningKeyBlobFile() {
         return new File(Folders.configuration() + File.separator + "signingkey.blob");        
+    }
+    
+    public File getSigningKeyOpaqueBlobFile() {
+        return new File(Folders.configuration() + File.separator + "signingkey.opaque");        
     }
 
     public String getTrustAgentAdminUserName() {
