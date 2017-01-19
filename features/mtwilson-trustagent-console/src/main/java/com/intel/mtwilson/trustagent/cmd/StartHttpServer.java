@@ -100,7 +100,8 @@ public class StartHttpServer implements Command {
                 "TLS_DHE_RSA.*", "TLS_ECDHE.*"
         );
         sslContextFactory.setExcludeCipherSuites(
-                ".*NULL.*", ".*RC4.*", ".*MD5.*", ".*DES.*", ".*DSS.*"
+                ".*NULL.*", ".*RC4.*", ".*MD5.*", ".*DES.*", ".*DSS.*",
+                ".*EC.*", ".*ECDHE.*", ".*ECDH.*"
         );
         sslContextFactory.setRenegotiationAllowed(false);
         ServerConnector https = new ServerConnector(server,
