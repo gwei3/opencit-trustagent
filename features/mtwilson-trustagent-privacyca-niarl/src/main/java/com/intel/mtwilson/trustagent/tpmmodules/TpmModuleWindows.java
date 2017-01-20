@@ -23,6 +23,8 @@ import gov.niarl.his.privacyca.TpmModule.TpmModuleException;
 import gov.niarl.his.privacyca.TpmPubKey;
 import gov.niarl.his.privacyca.TpmSymmetricKey;
 import gov.niarl.his.privacyca.TpmUtils;
+import gov.niarl.his.privacyca.TpmUtils.TpmBytestreamResouceException;
+import gov.niarl.his.privacyca.TpmUtils.TpmUnsignedConversionException;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -373,4 +375,65 @@ public class TpmModuleWindows implements TpmModuleProvider {
     public String getPcrBanks() throws IOException, TpmModule.TpmModuleException {
         return "SHA1";
     }
+    
+    @Override
+    public HashMap<String, byte[]> certifyKey(String keyType, byte[] keyAuth, int keyIndex, byte[] aikAuth, int aikIndex) throws IOException, TpmModule.TpmModuleException, TpmUtils.TpmBytestreamResouceException, TpmUtils.TpmUnsignedConversionException {
+    	/*
+         * Create Key (sign or bind)
+         * NIARL_TPM_Module -mode 8 -key_type <"sign" | "bind"> -key_auth <40 char hex blob> -key_index <integer index>
+         * return: <modulus> <key blob>
+         */
+    	if (!(keyType.equals("sign") || keyType.equals("bind"))) {
+            throw new TpmModuleException("TpmModule.createKey: key type parameter must be \"sign\" or \"bind\".");
+        }
+		log.info("Inside TpmModuleWindows.certifyKey() function ");
+		
+		String methodName = "create"+keyType+"ingkey";
+		// form the command arguments. This commands only returns the key modulus.
+		String[] cmdArgs = {
+				keyType,
+                TpmUtils.byteArrayToHexString(keyAuth),
+        };
+		log.info("UserName : {}", System.getProperty("user.name"));
+        CommandLineResult result = getShellExecutor().executeTpmCommand(methodName, cmdArgs, 2);
+        if (result.getReturnCode() != 0) throw new TpmModuleException("TpmModuleWindows."+methodName+" returned nonzero error", result.getReturnCode());
+        
+        log.info("Call to "+methodName+" was successful");
+        log.info("keymod byteArray: {}", TpmUtils.hexStringToByteArray(result.getResult(0)));
+		
+		HashMap<String, byte[]> response = new HashMap<String, byte[]>();
+		response.put("keymod", TpmUtils.hexStringToByteArray(result.getResult(0)));
+		response.put("keyopaque", TpmUtils.hexStringToByteArray(result.getResult(1)));
+		/*
+		 * Now call GetKeyAttestation to get 1) blob output 2) Certify Key
+		 * Signature 3) Certify Key Data
+		 */
+		String aikName = "HIS_Identity_Key";
+		String exportFile = keyType+"keyattestation";
+		String nonce = RandomUtil.randomHexString(20);
+//		byte[] bNonce = null;
+//		try {
+//			bNonce = Hex.decodeHex(nonce.toCharArray());
+//		} catch (DecoderException e) {
+//			// TODO Auto-generated catch block
+//			throw new IllegalArgumentException("Invalid nonce", e);
+//		}
+
+		String[] cmdArgsToGetKeyAttestation = {
+				keyType, aikName, exportFile, nonce,
+				//TpmUtils.byteArrayToHexString(bNonce),
+				TpmUtils.byteArrayToHexString(keyAuth),
+				TpmUtils.byteArrayToHexString(aikAuth)
+		};
+		CommandLineResult getKeyAttestationResult = getShellExecutor().executeTpmCommand("GetKeyAttestation", cmdArgsToGetKeyAttestation, 3);
+		if (getKeyAttestationResult.getReturnCode() != 0) throw new TpmModuleException("TpmModuleWindows.getKeyAttestation returned nonzero error", getKeyAttestationResult.getReturnCode());
+
+		log.info("Call to GetKeyAttestation was successful");
+		log.info("Result Count : " + getKeyAttestationResult.getResultCount());
+
+		response.put("keydata", TpmUtils.hexStringToByteArray(getKeyAttestationResult.getResult(0)));
+		response.put("keysig", TpmUtils.hexStringToByteArray(getKeyAttestationResult.getResult(1)));
+		response.put("keyblob", TpmUtils.hexStringToByteArray(getKeyAttestationResult.getResult(2)));
+		return response;
+	}
 }
