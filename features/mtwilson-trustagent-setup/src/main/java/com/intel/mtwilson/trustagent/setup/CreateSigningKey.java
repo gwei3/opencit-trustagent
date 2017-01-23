@@ -7,6 +7,8 @@ package com.intel.mtwilson.trustagent.setup;
 import com.intel.dcsg.cpg.crypto.RandomUtil;
 import com.intel.mtwilson.setup.AbstractSetupTask;
 import com.intel.mtwilson.trustagent.TrustagentConfiguration;
+import com.intel.mtwilson.trustagent.tpmmodules.Tpm;
+
 import gov.niarl.his.privacyca.TpmCertifyKey;
 import gov.niarl.his.privacyca.TpmModule;
 import java.io.File;
@@ -24,6 +26,7 @@ public class CreateSigningKey extends AbstractSetupTask {
     private File signingKeyModulus;
     private File signingKeyTCGCertificate;
     private File signingKeyTCGCertificateSignature;
+    private File signingKeyOpaqueBlob;
     
     @Override
     protected void configure() throws Exception {
@@ -60,11 +63,16 @@ public class CreateSigningKey extends AbstractSetupTask {
             validation("Public component of signing key does not exist.");
         }
         
+        signingKeyOpaqueBlob = trustagentConfiguration.getSigningKeyOpaqueBlobFile();
+        if (signingKeyOpaqueBlob == null || !signingKeyOpaqueBlob.exists()) {
+            validation("Opaque blob component of signing key does not exist.");
+        }
+        
     }
 
     @Override
     protected void execute() throws Exception {
-        
+        try {
         log.info("Starting the process to create the TCG standard signing key certificate");
         
         String signingKeySecretHex = RandomUtil.randomHexString(20);
@@ -73,8 +81,8 @@ public class CreateSigningKey extends AbstractSetupTask {
         getConfiguration().set(TrustagentConfiguration.SIGNING_KEY_SECRET, signingKeySecretHex);
         
         // Call into the TpmModule certifyKey function to create the signing key and certify the same using the AIK so that we have the chain of trust.
-        HashMap<String, byte[]> certifyKey = TpmModule.certifyKey(TrustagentConfiguration.SIGNING_KEY_NAME, trustagentConfiguration.getSigningKeySecret(), 
-                trustagentConfiguration.getSigningKeyIndex(), trustagentConfiguration.getAikSecret(), trustagentConfiguration.getAikIndex());
+        HashMap<String, byte[]> certifyKey = Tpm.getModule().certifyKey(TrustagentConfiguration.SIGNING_KEY_NAME, trustagentConfiguration.getSigningKeySecret(), 
+            trustagentConfiguration.getSigningKeyIndex(), trustagentConfiguration.getAikSecret(), trustagentConfiguration.getAikIndex());
         
         // Store the public key modulus, tcg standard certificate (output of certifyKey) & the private key blob.
         signingKeyBlob = trustagentConfiguration.getSigningKeyBlobFile();
@@ -86,15 +94,22 @@ public class CreateSigningKey extends AbstractSetupTask {
         log.debug("TCG Cert path is : {}", signingKeyTCGCertificate.getAbsolutePath());
         log.debug("TCG Cert signature path is : {}", signingKeyTCGCertificateSignature.getAbsolutePath());        
         log.debug("Public key modulus path is : {}", signingKeyModulus.getAbsolutePath());
+        log.debug("Opaque blob path is : {}", signingKeyOpaqueBlob.getAbsolutePath());
         
         FileUtils.writeByteArrayToFile(signingKeyModulus, certifyKey.get("keymod"));
         FileUtils.writeByteArrayToFile(signingKeyBlob, certifyKey.get("keyblob"));
         FileUtils.writeByteArrayToFile(signingKeyTCGCertificate, certifyKey.get("keydata"));
         FileUtils.writeByteArrayToFile(signingKeyTCGCertificateSignature, certifyKey.get("keysig"));
+        FileUtils.writeByteArrayToFile(signingKeyOpaqueBlob, certifyKey.get("keyopaque"));
         
-        TpmCertifyKey tpmCertifyKey = new TpmCertifyKey(certifyKey.get("keydata"));
-        log.debug("TCG Signing Key contents: {} - {}", tpmCertifyKey.getKeyParms().getAlgorithmId(), tpmCertifyKey.getKeyParms().getTrouSerSmode());
+        if (Tpm.getTpmVersion().equals("1.2")) {
+            TpmCertifyKey tpmCertifyKey = new TpmCertifyKey(certifyKey.get("keydata"));
+            log.debug("TCG Signing Key contents: {} - {}", tpmCertifyKey.getKeyParms().getAlgorithmId(), tpmCertifyKey.getKeyParms().getTrouSerSmode());
+        }
         
         log.info("Successfully created the signing key TCG certificate and the same has been stored at {}.", signingKeyTCGCertificate.getAbsolutePath());
-    }    
+    } catch (Exception e) {
+    	e.printStackTrace();
+    }
+    }
 }
