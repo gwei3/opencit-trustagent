@@ -49,13 +49,6 @@
             
             <dependencies>
                 <dependency>
-                    <groupId>com.oracle</groupId>
-                    <artifactId>jdk</artifactId>
-                    <version>1.7.0_51</version>
-                    <type>tar.gz</type>
-                    <classifier>linux-x64</classifier>
-                </dependency>
-                <dependency>
                     <groupId>com.intel.mtwilson.trustagent.packages</groupId>
                     <artifactId>trustagent-zip</artifactId>
                     <classifier>application</classifier>
@@ -117,15 +110,6 @@
                                 </goals>
                                 <configuration>
                                     <artifactItems>
-                                        <artifactItem>
-                                            <groupId>com.oracle</groupId>
-                                            <artifactId>jdk</artifactId>
-                                            <version>1.7.0_51</version>
-                                            <type>tar.gz</type>
-                                            <classifier>linux-x64</classifier>
-                                            <outputDirectory>${makeself.directory}</outputDirectory>
-                                            <destFileName>jdk-1.7.0_51-linux-x64.tar.gz</destFileName>
-                                        </artifactItem>
                                         <artifactItem>
                                             <groupId>com.intel.mtwilson.trustagent.packages</groupId>
                                             <artifactId>trustagent-zip</artifactId>
