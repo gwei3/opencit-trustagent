@@ -63,11 +63,13 @@ public class CreateSigningKey extends AbstractSetupTask {
             validation("Public component of signing key does not exist.");
         }
         
-        signingKeyOpaqueBlob = trustagentConfiguration.getSigningKeyOpaqueBlobFile();
-        if (signingKeyOpaqueBlob == null || !signingKeyOpaqueBlob.exists()) {
-            validation("Opaque blob component of signing key does not exist.");
+        String os = System.getProperty("os.name").toLowerCase();
+    	if  (os.indexOf( "win" ) >= 0) { //Windows
+			signingKeyOpaqueBlob = trustagentConfiguration.getSigningKeyOpaqueBlobFile();
+			if (signingKeyOpaqueBlob == null || !signingKeyOpaqueBlob.exists()) {
+				validation("Opaque blob component of signing key does not exist.");
+			}
         }
-        
     }
 
     @Override
@@ -94,8 +96,7 @@ public class CreateSigningKey extends AbstractSetupTask {
         log.debug("TCG Cert path is : {}", signingKeyTCGCertificate.getAbsolutePath());
         log.debug("TCG Cert signature path is : {}", signingKeyTCGCertificateSignature.getAbsolutePath());        
         log.debug("Public key modulus path is : {}", signingKeyModulus.getAbsolutePath());
-        log.debug("Opaque blob path is : {}", signingKeyOpaqueBlob.getAbsolutePath());
-        
+                
         FileUtils.writeByteArrayToFile(signingKeyModulus, certifyKey.get("keymod"));
         FileUtils.writeByteArrayToFile(signingKeyBlob, certifyKey.get("keyblob"));
         FileUtils.writeByteArrayToFile(signingKeyTCGCertificate, certifyKey.get("keydata"));
@@ -104,6 +105,7 @@ public class CreateSigningKey extends AbstractSetupTask {
         String os = System.getProperty("os.name").toLowerCase();
     	if  (os.indexOf( "win" ) >= 0) { //Windows
             FileUtils.writeByteArrayToFile(signingKeyOpaqueBlob, certifyKey.get("keyopaque"));
+			log.debug("Opaque blob path is : {}", signingKeyOpaqueBlob.getAbsolutePath());
         }
 		
 		if (Tpm.getTpmVersion().equals("1.2")) {
