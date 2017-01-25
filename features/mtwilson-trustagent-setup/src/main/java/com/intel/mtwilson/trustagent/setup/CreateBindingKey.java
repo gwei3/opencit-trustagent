@@ -64,11 +64,13 @@ public class CreateBindingKey extends AbstractSetupTask {
             validation("Public component of binding key does not exist.");
         }
         
-        bindingKeyOpaqueBlob = trustagentConfiguration.getBindingKeyOpaqueBlobFile();
-        if (bindingKeyOpaqueBlob == null || !bindingKeyOpaqueBlob.exists()) {
-            validation("Opaque blob component of binding key does not exist.");
+        String os = System.getProperty("os.name").toLowerCase();
+    	if  (os.indexOf( "win" ) >= 0) { //Windows
+			bindingKeyOpaqueBlob = trustagentConfiguration.getBindingKeyOpaqueBlobFile();
+			if (bindingKeyOpaqueBlob == null || !bindingKeyOpaqueBlob.exists()) {
+				validation("Opaque blob component of binding key does not exist.");
+			}
         }
-        
     }
 
     @Override

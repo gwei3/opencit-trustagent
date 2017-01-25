@@ -63,11 +63,13 @@ public class CreateSigningKey extends AbstractSetupTask {
             validation("Public component of signing key does not exist.");
         }
         
-        signingKeyOpaqueBlob = trustagentConfiguration.getSigningKeyOpaqueBlobFile();
-        if (signingKeyOpaqueBlob == null || !signingKeyOpaqueBlob.exists()) {
-            validation("Opaque blob component of signing key does not exist.");
+        String os = System.getProperty("os.name").toLowerCase();
+    	if  (os.indexOf( "win" ) >= 0) { //Windows
+			signingKeyOpaqueBlob = trustagentConfiguration.getSigningKeyOpaqueBlobFile();
+			if (signingKeyOpaqueBlob == null || !signingKeyOpaqueBlob.exists()) {
+				validation("Opaque blob component of signing key does not exist.");
+			}
         }
-        
     }
 
     @Override
