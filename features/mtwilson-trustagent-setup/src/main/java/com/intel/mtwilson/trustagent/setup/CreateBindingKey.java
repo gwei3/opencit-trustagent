@@ -102,9 +102,13 @@ public class CreateBindingKey extends AbstractSetupTask {
         FileUtils.writeByteArrayToFile(bindingKeyBlob, certifyKey.get("keyblob"));
         FileUtils.writeByteArrayToFile(bindingKeyTCGCertificate, certifyKey.get("keydata"));
         FileUtils.writeByteArrayToFile(bindingKeyTCGCertificateSignature, certifyKey.get("keysig"));
-        FileUtils.writeByteArrayToFile(bindingKeyOpaqueBlob, certifyKey.get("keyopaque"));
         
-        if (Tpm.getTpmVersion().equals("1.2")) {
+        String os = System.getProperty("os.name").toLowerCase();
+    	if  (os.indexOf( "win" ) >= 0) { //Windows
+            FileUtils.writeByteArrayToFile(bindingKeyOpaqueBlob, certifyKey.get("keyopaque"));
+        }
+		
+		if (Tpm.getTpmVersion().equals("1.2")) {
             TpmCertifyKey tpmCertifyKey = new TpmCertifyKey(certifyKey.get("keydata"));
             log.debug("TCG Binding Key contents: {} - {}", tpmCertifyKey.getKeyParms().getAlgorithmId(), tpmCertifyKey.getKeyParms().getTrouSerSmode());
         }

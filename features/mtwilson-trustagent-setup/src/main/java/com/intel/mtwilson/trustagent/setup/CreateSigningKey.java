@@ -100,9 +100,13 @@ public class CreateSigningKey extends AbstractSetupTask {
         FileUtils.writeByteArrayToFile(signingKeyBlob, certifyKey.get("keyblob"));
         FileUtils.writeByteArrayToFile(signingKeyTCGCertificate, certifyKey.get("keydata"));
         FileUtils.writeByteArrayToFile(signingKeyTCGCertificateSignature, certifyKey.get("keysig"));
-        FileUtils.writeByteArrayToFile(signingKeyOpaqueBlob, certifyKey.get("keyopaque"));
         
-        if (Tpm.getTpmVersion().equals("1.2")) {
+        String os = System.getProperty("os.name").toLowerCase();
+    	if  (os.indexOf( "win" ) >= 0) { //Windows
+            FileUtils.writeByteArrayToFile(signingKeyOpaqueBlob, certifyKey.get("keyopaque"));
+        }
+		
+		if (Tpm.getTpmVersion().equals("1.2")) {
             TpmCertifyKey tpmCertifyKey = new TpmCertifyKey(certifyKey.get("keydata"));
             log.debug("TCG Signing Key contents: {} - {}", tpmCertifyKey.getKeyParms().getAlgorithmId(), tpmCertifyKey.getKeyParms().getTrouSerSmode());
         }
