@@ -135,7 +135,7 @@ install_tboot_tpm2() {
 install_tss2_tpmtools2() {
   #install tpm2-tss, tpm2-tools for tpm2
   # (do not install trousers and its dev packages for tpm 2.0)
-  ./mtwilson-tpm2-packages-*.bin
+  ./mtwilson-trustagent-tpm2-packages-*.bin
 }
 
 install_openssl
