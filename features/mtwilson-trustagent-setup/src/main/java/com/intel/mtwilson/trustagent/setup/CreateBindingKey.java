@@ -64,11 +64,13 @@ public class CreateBindingKey extends AbstractSetupTask {
             validation("Public component of binding key does not exist.");
         }
         
-        bindingKeyOpaqueBlob = trustagentConfiguration.getBindingKeyOpaqueBlobFile();
-        if (bindingKeyOpaqueBlob == null || !bindingKeyOpaqueBlob.exists()) {
-            validation("Opaque blob component of binding key does not exist.");
+        String os = System.getProperty("os.name").toLowerCase();
+    	if  (os.indexOf( "win" ) >= 0) { //Windows
+			bindingKeyOpaqueBlob = trustagentConfiguration.getBindingKeyOpaqueBlobFile();
+			if (bindingKeyOpaqueBlob == null || !bindingKeyOpaqueBlob.exists()) {
+				validation("Opaque blob component of binding key does not exist.");
+			}
         }
-        
     }
 
     @Override
@@ -96,15 +98,19 @@ public class CreateBindingKey extends AbstractSetupTask {
         log.debug("TCG Cert path is : {}", bindingKeyTCGCertificate.getAbsolutePath());
         log.debug("TCG Cert signature path is : {}", bindingKeyTCGCertificateSignature.getAbsolutePath());
         log.debug("Public key modulus path is : {}", bindingKeyModulus.getAbsolutePath());
-        log.debug("Opaque blob path is : {}", bindingKeyOpaqueBlob.getAbsolutePath());
-        
+                
         FileUtils.writeByteArrayToFile(bindingKeyModulus, certifyKey.get("keymod"));
         FileUtils.writeByteArrayToFile(bindingKeyBlob, certifyKey.get("keyblob"));
         FileUtils.writeByteArrayToFile(bindingKeyTCGCertificate, certifyKey.get("keydata"));
         FileUtils.writeByteArrayToFile(bindingKeyTCGCertificateSignature, certifyKey.get("keysig"));
-        FileUtils.writeByteArrayToFile(bindingKeyOpaqueBlob, certifyKey.get("keyopaque"));
         
-        if (Tpm.getTpmVersion().equals("1.2")) {
+        String os = System.getProperty("os.name").toLowerCase();
+    	if  (os.indexOf( "win" ) >= 0) { //Windows
+            FileUtils.writeByteArrayToFile(bindingKeyOpaqueBlob, certifyKey.get("keyopaque"));
+			log.debug("Opaque blob path is : {}", bindingKeyOpaqueBlob.getAbsolutePath());
+        }
+		
+		if (Tpm.getTpmVersion().equals("1.2")) {
             TpmCertifyKey tpmCertifyKey = new TpmCertifyKey(certifyKey.get("keydata"));
             log.debug("TCG Binding Key contents: {} - {}", tpmCertifyKey.getKeyParms().getAlgorithmId(), tpmCertifyKey.getKeyParms().getTrouSerSmode());
         }
