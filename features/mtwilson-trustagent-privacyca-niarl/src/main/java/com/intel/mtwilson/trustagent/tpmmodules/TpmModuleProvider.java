@@ -9,7 +9,6 @@ import com.intel.mtwilson.trustagent.shell.ShellExecutor;
 import gov.niarl.his.privacyca.TpmIdentity;
 import gov.niarl.his.privacyca.TpmModule;
 import gov.niarl.his.privacyca.TpmUtils;
-
 import java.io.IOException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
@@ -33,7 +32,6 @@ public interface TpmModuleProvider {
     public byte[] readAssetTag(byte[] ownerAuth) throws IOException, TpmModule.TpmModuleException;    
     public String getAssetTagIndex() throws IOException, TpmModule.TpmModuleException;
     public String getPcrBanks() throws IOException, TpmModule.TpmModuleException;
-    public HashMap<String, byte[]> certifyKey(String keyType, byte[] keyAuth, int keyIndex, byte[] aikAuth, int aikIndex) throws IOException, TpmModule.TpmModuleException, TpmUtils.TpmBytestreamResouceException, TpmUtils.TpmUnsignedConversionException;
     
     /* release and define require owner authorization */
     public void nvDefine(byte[] ownerAuth, byte[] indexPassword, String index, int size, String attributes) throws IOException, TpmModule.TpmModuleException;
@@ -42,6 +40,8 @@ public interface TpmModuleProvider {
     public byte[] nvRead(byte[] authPassword, String index, int size) throws IOException, TpmModule.TpmModuleException;
     public void nvWrite(byte[] authPassword, String index, byte[] data) throws IOException, TpmModule.TpmModuleException;
     public boolean nvIndexExists(String index) throws IOException, TpmModule.TpmModuleException;
+        
+    public HashMap<String, byte[]> createAndCertifyKey(String keyType, byte[] keyAuth, int keyIndex, byte[] aikAuth, String aikIndex) throws IOException, TpmModule.TpmModuleException, TpmUtils.TpmBytestreamResouceException, TpmUtils.TpmUnsignedConversionException;
         
     ShellExecutor getShellExecutor();
     
