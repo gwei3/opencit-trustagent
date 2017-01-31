@@ -33,11 +33,11 @@ set TRUSTAGENT_HTTP_LOG_FILE=%TRUSTAGENT_LOGS%\http.log
 set TRUSTAGENT_AUTHORIZE_TASKS=download-mtwilson-tls-certificate download-mtwilson-privacy-ca-certificate download-mtwilson-saml-certificate request-endorsement-certificate request-aik-certificate
 set TRUSTAGENT_TPM_TASKS=create-tpm-owner-secret create-tpm-srk-secret create-aik-secret take-ownership
 set TRUSTAGENT_START_TASKS=create-keystore-password create-tls-keypair take-ownership
-REM set TRUSTAGENT_VM_ATTESTATION_SETUP_TASKS=create-binding-key certify-binding-key create-signing-key certify-signing-key
-set TRUSTAGENT_VM_ATTESTATION_SETUP_TASKS=
+set TRUSTAGENT_VM_ATTESTATION_SETUP_TASKS=create-binding-key certify-binding-key create-signing-key certify-signing-key
+REM set TRUSTAGENT_VM_ATTESTATION_SETUP_TASKS=
 set TRUSTAGENT_SETUP_TASKS=update-extensions-cache-file create-keystore-password create-tls-keypair create-admin-user %TRUSTAGENT_TPM_TASKS% %TRUSTAGENT_AUTHORIZE_TASKS% %TRUSTAGENT_VM_ATTESTATION_SETUP_TASKS% login-register
 
-ECHO. ==Running tagent service==
+REM ECHO. ==Running tagent service==
 REM # load environment variables (these may override the defaults set above)
 if exist "%TRUSTAGENT_ENV%\" (
 REM  TRUSTAGENT_ENV_FILES=$(ls -1 $TRUSTAGENT_ENV/*)
@@ -55,11 +55,11 @@ REM # not including configure-from-environment because we are running it always 
 REM # not including register-tpm-password because we are prompting for it in the setup.sh
 
 set JAVA_REQUIRED_VERSION=${JAVA_REQUIRED_VERSION:-1.7}
-set JAVA_OPTS=-Dlogback.confsdfigurationFile="%TRUSTAGENT_CONF%"\logback.xml -Dfs.name=trustagent
+set JAVA_OPTS=-Dlogback.configurationFile="%TRUSTAGENT_CONF%"\logback.xml -Dfs.name=trustagent
 
 REM @###################################################################################################
 
-set TA_JARS=
+REM set TA_JARS=
 REM # generated variables
 REM for /f  "delims=" %%a in ('dir "%TRUSTAGENT_JAVA%" /s /b') do (
 REM  set TA_JARS=%%a;!TA_JARS!
@@ -87,7 +87,7 @@ if "%wcommand%"=="start" (
 ) ELSE IF "%wcommand%"=="status" (
   call:trustagent_status
 ) ELSE IF "%wcommand%"=="setup" (
-  call:trustagent_setup %cmdparams%dsf
+  call:trustagent_setup %cmdparams%
 ) ELSE IF "%wcommand%"=="authorize" (
   call:trustagent_authorize
 ) ELSE IF "%wcommand%"=="start-http-server" (
