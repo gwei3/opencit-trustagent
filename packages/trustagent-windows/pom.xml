@@ -30,7 +30,8 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-    
+   
+    <!-- 
     <build>
         <resources>
             <resource>
@@ -38,14 +39,14 @@
             </resource>
         </resources>
     </build>
+    -->
     
     <profiles>
         <profile>
-            <activation>
-                <os>
-                    <family>unix</family>
-                </os>
-            </activation>
+	    <activation>
+                <activeByDefault>true</activeByDefault>
+	    </activation>
+            
             <dependencies>
                 <dependency>
                     <groupId>org.slf4j</groupId>
@@ -280,6 +281,7 @@
             </build>
         </profile>
         
+        <!--
         <profile>
             <id>gitvars</id>
             <activation>
@@ -289,7 +291,6 @@
             </activation>
             <build>
                 <plugins>
-                    <!-- also defined in top level pom.xml but appears to not take effect if someoen runs just this pom   
                     <plugin>
                         <groupId>pl.project13.maven</groupId>
                         <artifactId>git-commit-id-plugin</artifactId>
@@ -309,10 +310,10 @@
                             </execution>
                         </executions>
                     </plugin>
-                    -->
                 </plugins>
             </build>
         </profile>
+        -->
     </profiles>
     
 </project>
