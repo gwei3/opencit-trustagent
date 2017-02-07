@@ -81,7 +81,7 @@ public class CreateSigningKey extends AbstractSetupTask {
         getConfiguration().set(TrustagentConfiguration.SIGNING_KEY_SECRET, signingKeySecretHex);
         
         // Call into the TpmModule certifyKey function to create the signing key and certify the same using the AIK so that we have the chain of trust.
-        HashMap<String, byte[]> certifyKey = Tpm.getModule().createAndCertifyKey(TrustagentConfiguration.SIGNING_KEY_NAME, trustagentConfiguration.getSigningKeySecret(), 
+        HashMap<String, byte[]> certifyKey = Tpm.getModule().certifyKey(TrustagentConfiguration.SIGNING_KEY_NAME, trustagentConfiguration.getSigningKeySecret(), 
                 trustagentConfiguration.getSigningKeyIndex(), trustagentConfiguration.getAikSecret(), trustagentConfiguration.getAikHandle());
         
         // Store the public key modulus, tcg standard certificate (output of certifyKey) & the private key blob.

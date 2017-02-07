@@ -18,6 +18,8 @@ import java.security.cert.X509Certificate;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import com.intel.mtwilson.trustagent.tpmmodules.Tpm;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  *
@@ -120,5 +122,7 @@ public class CertifySigningKey extends AbstractSetupTask {
         FileUtils.writeStringToFile(signingKeyPem, pemCertificate);
         log.debug("Successfully created the MTW signed X509Certificate for the signing key and stored at {}.", 
                 signingKeyPem.getAbsolutePath());
+        if(signingKeyName != null)
+            Files.deleteIfExists(Paths.get(signingKeyName.getAbsolutePath()));
     }    
 }

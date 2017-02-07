@@ -75,7 +75,7 @@ public class TpmModule12 implements TpmModuleProvider {
     }
     
     @Override
-    public HashMap<String, byte[]> certifyKey(String keyType, byte[] keyAuth, int keyIndex, byte[] aikAuth, int aikIndex) throws IOException, TpmModule.TpmModuleException, TpmUtils.TpmBytestreamResouceException, TpmUtils.TpmUnsignedConversionException {
+    public HashMap<String, byte[]> certifyKey(String keyType, byte[] keyAuth, int keyIndex, byte[] aikAuth, String aikIndex) throws IOException, TpmModule.TpmModuleException, TpmUtils.TpmBytestreamResouceException, TpmUtils.TpmUnsignedConversionException {
     	return TpmModule.certifyKey(keyType, keyAuth, keyIndex, aikAuth, aikIndex);
     }
     
@@ -234,10 +234,5 @@ public class TpmModule12 implements TpmModuleProvider {
         return "SHA1";
     }
 
-    @Override
-    public HashMap<String, byte[]> createAndCertifyKey(String keyType, byte[] keyAuth, int keyIndex, byte[] aikAuth, String aikIndex) 
-            throws IOException, TpmModule.TpmModuleException, TpmUtils.TpmBytestreamResouceException, TpmUtils.TpmUnsignedConversionException {
-        return TpmModule.certifyKey(keyType, keyAuth, keyIndex, aikAuth, Integer.valueOf(aikIndex));
-    }
 
 }

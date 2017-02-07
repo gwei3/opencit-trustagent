@@ -377,7 +377,7 @@ public class TpmModuleWindows implements TpmModuleProvider {
     }
     	
     @Override
-    public HashMap<String, byte[]> createAndCertifyKey(String keyType, byte[] keyAuth, int keyIndex, byte[] aikAuth, String aikIndex) throws IOException, TpmModule.TpmModuleException, TpmUtils.TpmBytestreamResouceException, TpmUtils.TpmUnsignedConversionException {
+    public HashMap<String, byte[]> certifyKey(String keyType, byte[] keyAuth, int keyIndex, byte[] aikAuth, String aikIndex) throws IOException, TpmModule.TpmModuleException, TpmUtils.TpmBytestreamResouceException, TpmUtils.TpmUnsignedConversionException {
     	/*
          * Create Key (sign or bind)
          * NIARL_TPM_Module -mode 8 -key_type <"sign" | "bind"> -key_auth <40 char hex blob> -key_index <integer index>
