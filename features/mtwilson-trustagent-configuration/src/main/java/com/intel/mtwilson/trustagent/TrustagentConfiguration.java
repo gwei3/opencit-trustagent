@@ -186,7 +186,12 @@ public class TrustagentConfiguration {
         }
         */
         try {
-            return readFromFile(Folders.configuration() + File.separator + "aikhandle");
+            if ( getTpmVersion().equals("1.2") ) {
+                return conf.get(AIK_INDEX, "1");                
+            }
+            else {
+                return readFromFile(Folders.configuration() + File.separator + "aikhandle");
+            }
         } catch (IOException ex) {
             Logger.getLogger(TrustagentConfiguration.class.getName()).log(Level.SEVERE, null, ex);
             throw new IllegalArgumentException("AiK Handle", ex);
@@ -393,7 +398,15 @@ public class TrustagentConfiguration {
     public int getBindingKeyIndex() {
         return Integer.valueOf(conf.get(BINDING_KEY_INDEX, "3")); 
     }
-    
+    public File getBindingKeyNameFile() {
+        //return new File(Folders.configuration() + File.separator + "bindingkey.nam");        
+        return new File("/tmp/outputfilename.tmp");
+    }
+
+    public File getSigningKeyNameFile() {
+        return new File("/tmp/outputfilename.tmp");
+    }
+     
     public File getBindingKeyModulusFile() {
         return new File(Folders.configuration() + File.separator + "bindingkey.pub");        
     }
