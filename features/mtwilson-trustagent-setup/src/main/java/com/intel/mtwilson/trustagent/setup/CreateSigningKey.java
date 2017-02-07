@@ -8,9 +8,7 @@ import com.intel.dcsg.cpg.crypto.RandomUtil;
 import com.intel.mtwilson.setup.AbstractSetupTask;
 import com.intel.mtwilson.trustagent.TrustagentConfiguration;
 import com.intel.mtwilson.trustagent.tpmmodules.Tpm;
-
 import gov.niarl.his.privacyca.TpmCertifyKey;
-import gov.niarl.his.privacyca.TpmModule;
 import java.io.File;
 import java.util.HashMap;
 import org.apache.commons.io.FileUtils;
@@ -84,7 +82,7 @@ public class CreateSigningKey extends AbstractSetupTask {
         
         // Call into the TpmModule certifyKey function to create the signing key and certify the same using the AIK so that we have the chain of trust.
         HashMap<String, byte[]> certifyKey = Tpm.getModule().certifyKey(TrustagentConfiguration.SIGNING_KEY_NAME, trustagentConfiguration.getSigningKeySecret(), 
-            trustagentConfiguration.getSigningKeyIndex(), trustagentConfiguration.getAikSecret(), trustagentConfiguration.getAikIndex());
+                trustagentConfiguration.getSigningKeyIndex(), trustagentConfiguration.getAikSecret(), trustagentConfiguration.getAikHandle());
         
         // Store the public key modulus, tcg standard certificate (output of certifyKey) & the private key blob.
         signingKeyBlob = trustagentConfiguration.getSigningKeyBlobFile();
@@ -113,7 +111,7 @@ public class CreateSigningKey extends AbstractSetupTask {
             log.debug("TCG Signing Key contents: {} - {}", tpmCertifyKey.getKeyParms().getAlgorithmId(), tpmCertifyKey.getKeyParms().getTrouSerSmode());
         }
         
-        log.info("Successfully created the signing key TCG certificate and the same has been stored at {}.", signingKeyTCGCertificate.getAbsolutePath());
+        //log.info("Successfully created the signing key TCG certificate and the same has been stored at {}.", signingKeyTCGCertificate.getAbsolutePath());
     } catch (Exception e) {
     	e.printStackTrace();
     }

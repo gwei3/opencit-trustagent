@@ -874,7 +874,7 @@ public class TpmModule {
         return TpmUtils.hexStringToByteArray(result.getResult(0));
     }
 
-    public static HashMap<String, byte[]> certifyKey(String keyType, byte[] keyAuth, int keyIndex, byte[] aikAuth, int aikIndex)
+    public static HashMap<String, byte[]> certifyKey(String keyType, byte[] keyAuth, int keyIndex, byte[] aikAuth, String aikIndex)
         throws IOException,
         TpmModuleException,
         TpmBytestreamResouceException,
