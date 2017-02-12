@@ -115,9 +115,13 @@ public class TpmModule12 implements TpmModuleProvider {
     }
 
     @Override
-    public void nvDefine(byte[] ownerAuth, byte[] indexPassword, String index, int size, String attributes) throws TpmModule.TpmModuleException, IOException {
+    public void nvDefine(byte[] ownerAuth, byte[] indexPassword, String index, int size, String attributes) throws TpmModule.TpmModuleException, IOException {        
         log.debug("running command tpm_nvdefine -i " + index + " -s 0x" + Integer.toHexString(size) + " -x -aXXXX -oXXXX --permissions=" + attributes);
-        Map<String, String> variables = new HashMap<>();
+        Map<String, String> variables = new HashMap<>();                
+        String LD_LIBRARY_PATH = System.getenv("LD_LIBRARY_PATH");
+        if (LD_LIBRARY_PATH != null) {
+            variables.put("LD_LIBRARY_PATH", LD_LIBRARY_PATH);
+        }
         variables.put("tpmOwnerPass", TpmUtils.byteArrayToHexString(ownerAuth));
         variables.put("NvramPassword", TpmUtils.byteArrayToHexString(indexPassword));
         CommandLine command = new CommandLine("/opt/trustagent/bin/tpm_nvdefine");
@@ -138,9 +142,13 @@ public class TpmModule12 implements TpmModuleProvider {
     }
 
     @Override
-    public void nvRelease(byte[] ownerAuth, String index) throws IOException, TpmModule.TpmModuleException {
+    public void nvRelease(byte[] ownerAuth, String index) throws IOException, TpmModule.TpmModuleException {       
         log.debug("running command tpm_nvrelease -x -t -i " + index + " -oXXXX");
         Map<String, String> variables = new HashMap<>();
+        String LD_LIBRARY_PATH = System.getenv("LD_LIBRARY_PATH");
+        if (LD_LIBRARY_PATH != null) {
+            variables.put("LD_LIBRARY_PATH", LD_LIBRARY_PATH);
+        }
         variables.put("tpmOwnerPass", TpmUtils.byteArrayToHexString(ownerAuth));
         CommandLine command = new CommandLine("/opt/trustagent/bin/tpm_nvrelease");
         command.addArgument("-x");
@@ -164,6 +172,10 @@ public class TpmModule12 implements TpmModuleProvider {
 
             log.debug("running command tpm_nvwrite -x -i " + index + " -pXXXX -f " + tmpFile.getPath());
             Map<String, String> variables = new HashMap<>();
+            String LD_LIBRARY_PATH = System.getenv("LD_LIBRARY_PATH");
+            if (LD_LIBRARY_PATH != null) {
+                variables.put("LD_LIBRARY_PATH", LD_LIBRARY_PATH);
+            }
             variables.put("NvramPassword", TpmUtils.byteArrayToHexString(authPassword));
             CommandLine command = new CommandLine("/opt/trustagent/bin/tpm_nvwrite");
             command.addArgument("-x");
