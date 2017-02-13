@@ -18,6 +18,8 @@ import java.security.cert.X509Certificate;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import com.intel.mtwilson.trustagent.tpmmodules.Tpm;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  *
@@ -78,29 +80,33 @@ public class CertifySigningKey extends AbstractSetupTask {
 
     @Override
     protected void execute() throws Exception {
-
+        log.info("Calling into MTW to certify the TCG standard signing key");
+        String os = System.getProperty("os.name").toLowerCase();
         aikPemCertificate = trustagentConfiguration.getAikCertificateFile();
         signingKeyTCGCertificate = trustagentConfiguration.getSigningKeyTCGCertificateFile(); 
         signingKeyModulus = trustagentConfiguration.getSigningKeyModulusFile();
         signingKeyTCGCertificateSignature = trustagentConfiguration.getSigningKeyTCGCertificateSignatureFile();
-        // Check OS and TPM version for name digest
-		if( !os.contains("win" ) & Tpm.getTpmVersion().equals("2.0")) //Linux and TPM 2.0
+        signingKeyName = trustagentConfiguration.getSigningKeyNameFile();
+        if  ( !os.contains("win" ) & Tpm.getTpmVersion().equals("2.0")) //Linux and TPM 2.0
             signingKeyName = trustagentConfiguration.getSigningKeyNameFile();
+        else 
+            signingKeyName = null;
         
         log.debug("AIK Cert path is : {}", aikPemCertificate.getAbsolutePath());
         log.debug("TCG Cert path is : {}", signingKeyTCGCertificate.getAbsolutePath());
         log.debug("TCG Cert signature path is : {}", signingKeyTCGCertificateSignature.getAbsolutePath());        
         log.debug("Public key modulus path is : {}", signingKeyModulus.getAbsolutePath());
-        log.debug("Key Name file path is : {}", signingKeyName.getAbsolutePath());
+        if(signingKeyName != null)
+            log.debug("Key Name file path is : {}", signingKeyName.getAbsolutePath());
                 
         SigningKeyEndorsementRequest obj = new SigningKeyEndorsementRequest();
         obj.setPublicKeyModulus(FileUtils.readFileToByteArray(signingKeyModulus));
         obj.setTpmCertifyKey(FileUtils.readFileToByteArray(signingKeyTCGCertificate));
         obj.setTpmCertifyKeySignature(FileUtils.readFileToByteArray(signingKeyTCGCertificateSignature)); 
-		if  ( !os.contains("win" ) & Tpm.getTpmVersion().equals("2.0")) //Linux and TPM 2.0
+        if  ( !os.contains("win" ) & Tpm.getTpmVersion().equals("2.0") && signingKeyName != null) //Linux and TPM 2.0
             obj.setNameDigest(FileUtils.readFileToByteArray(signingKeyName));
         else
-            obj.setNameDigest(null);
+            obj.setNameDigest(null);        
         obj.setTpmVersion(Tpm.getTpmVersion());
         log.debug("Detected TPM Version Certify-Signing-Key: {}",Tpm.getTpmVersion());
         
@@ -125,5 +131,7 @@ public class CertifySigningKey extends AbstractSetupTask {
         FileUtils.writeStringToFile(signingKeyPem, pemCertificate);
         log.debug("Successfully created the MTW signed X509Certificate for the signing key and stored at {}.", 
                 signingKeyPem.getAbsolutePath());
+        if(signingKeyName != null)
+            Files.deleteIfExists(Paths.get(signingKeyName.getAbsolutePath()));
     }    
 }

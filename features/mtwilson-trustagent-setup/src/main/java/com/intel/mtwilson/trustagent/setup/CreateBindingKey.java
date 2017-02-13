@@ -85,7 +85,7 @@ public class CreateBindingKey extends AbstractSetupTask {
             
         // Call into the TpmModule certifyKey function to create the binding key and certify the same using AIK to build the chain of trust.
         HashMap<String, byte[]> certifyKey = Tpm.getModule().certifyKey(TrustagentConfiguration.BINDING_KEY_NAME, trustagentConfiguration.getBindingKeySecret(), 
-                trustagentConfiguration.getBindingKeyIndex(), trustagentConfiguration.getAikSecret(), trustagentConfiguration.getAikIndex());
+                trustagentConfiguration.getBindingKeyIndex(), trustagentConfiguration.getAikSecret(), trustagentConfiguration.getAikHandle());
         
         // Store the public key modulus, tcg standard certificate (output of certifyKey) & the private key blob.
         bindingKeyBlob = trustagentConfiguration.getBindingKeyBlobFile();
