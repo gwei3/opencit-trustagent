@@ -43,8 +43,10 @@
     
     <profiles>
         <profile>
-	    <activation>
-                <activeByDefault>true</activeByDefault>
+	    <activation>              
+		<os>
+		  <family>windows</family>
+		</os>         
 	    </activation>
             
             <dependencies>
@@ -60,6 +62,12 @@
                     <groupId>com.intel.mtwilson.trustagent.packages</groupId>
                     <artifactId>trustagent-zip</artifactId>
                     <classifier>application</classifier>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>com.intel.mtwilson.windows.packages</groupId>
+                    <artifactId>tpmtools-windows</artifactId>
                     <version>${project.version}</version>
                     <type>zip</type>
                 </dependency>	
@@ -96,6 +104,13 @@
                                             <outputDirectory>${makeself.directory}</outputDirectory>
                                             <destFileName>trustagent-${project.version}.zip</destFileName>
                                         </artifactItem>
+                                        <artifactItem>
+                                            <groupId>com.intel.mtwilson.windows.packages</groupId>
+                                            <artifactId>tpmtools-windows</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>zip</type>
+                                            <outputDirectory>${makeself.directory}</outputDirectory>
+                                        </artifactItem>                                        
                                     </artifactItems>
                                     <overWriteReleases>false</overWriteReleases>
                                     <overWriteSnapshots>true</overWriteSnapshots>
@@ -149,10 +164,10 @@
                                     <goal>copy-resources</goal>
                                 </goals>
                                 <configuration>
-                                    <outputDirectory>${makeself.directory}/tpmtool</outputDirectory>
+                                    <outputDirectory>${makeself.directory}/3rdparty</outputDirectory>
                                     <resources>
                                         <resource>
-                                            <directory>src/tpmtool</directory>
+                                            <directory>src/3rdparty</directory>
                                             <includes>
                                                 <include>**/*</include>
                                             </includes>
