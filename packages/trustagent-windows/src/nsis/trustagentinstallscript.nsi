@@ -318,10 +318,10 @@ Section "install"
         File /r "..\bin\getvmmver.cmd"
         File /r "..\bin\tasetup.cmd"
         File /r "..\bin\taupgrade.cmd"
-        File /r "..\bin\tpm_signdata.exe"
-        File /r "..\bin\tpm_unbindaeskey.exe"
-        File /r "..\tpmtool\TpmAtt.dll"
-        File /r "..\tpmtool\TPMTool.exe"
+        File /r "..\tpmtools\tpm_signdata.exe"
+        File /r "..\tpmtools\tpm_unbindaeskey.exe"
+        File /r "..\tpmtools\TpmAtt.dll"
+        File /r "..\tpmtools\TPMTool.exe"
 
         SetOutPath $INSTDIR\
 
@@ -336,7 +336,7 @@ Section "install"
         File "..\version"
         File "readme.txt"
         File "TAicon.ico"
-        File "..\tpmtool\vcredist_x64.exe"
+        File "..\3rdparty\vcredist_x64.exe"
         File "TrustAgent.exe"
         File "TrustAgentTray.exe"
         File "nocmd.vbs"
@@ -530,7 +530,7 @@ Function .onInit
                 inst:
                      SetOutPath $INSTDIR\
 
-                     File "..\tpmtool\vcredist_x64.exe"
+                     File "..\3rdparty\vcredist_x64.exe"
                      ExecWait '$INSTDIR\vcredist_x64.exe /install /passive /norestart'
                      StrCpy $2 "Name like '%%Microsoft Visual C++ 2013 x64 Minimum Runtime%%'"
                      nsExec::ExecToStack 'wmic product where "$2" get name'
