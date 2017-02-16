@@ -42,6 +42,14 @@ mv *.cmd bin/
 mv *.exe bin/
 mv logback.xml.base configuration/
 
+# unzip the tpmtools-windows-3.0-SNAPSHOT.zip
+tpmtoolPkgName="tpmtools-windows"
+tpmtoolPkgNameVersion="${tpmtoolPkgName}-${projectVersion}"
+cd $targetDir/${projectNameVersion}
+unzip -o ${tpmtoolPkgNameVersion}.zip
+mv ${tpmtoolPkgNameVersion} tpmtools
+rm -rf ${tpmtoolPkgNameVersion}.zip
+
 export TMPDIR=~/.tmp
 
 # instead of making a zip file, we run makesis to generate the trustagent windows installer
