@@ -113,7 +113,10 @@ public class CertifyBindingKey extends AbstractSetupTask {
             obj.setNameDigest(null);
         obj.setTpmVersion(Tpm.getTpmVersion());
         log.debug("Detected TPM Version: {}", Tpm.getTpmVersion());
-        
+        if (os.contains("win"))
+            obj.setOperatingSystem("Windows");
+        else
+            obj.setOperatingSystem("Linux");
         // set encyrption scheme. This is especially used for TPM 2.0 since the encryption scheme is not included in the TPM_ST_ATTEST_CERTIFY
         // Windows uses PKCS by default; Linux uses OAEP by default,
         short TPM_ES_RSAESPKCSv15 = 0x0002;
