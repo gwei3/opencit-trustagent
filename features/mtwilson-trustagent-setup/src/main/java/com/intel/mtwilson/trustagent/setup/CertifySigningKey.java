@@ -110,6 +110,11 @@ public class CertifySigningKey extends AbstractSetupTask {
         obj.setTpmVersion(Tpm.getTpmVersion());
         log.debug("Detected TPM Version Certify-Signing-Key: {}",Tpm.getTpmVersion());
         
+        if (os.contains("win"))
+            obj.setOperatingSystem("Windows");
+        else
+            obj.setOperatingSystem("Linux");
+        
         X509Certificate aikCert = X509Util.decodePemCertificate(FileUtils.readFileToString(aikPemCertificate));
         byte[] encodedAikDerCertificate = X509Util.encodeDerCertificate(aikCert);
         obj.setAikDerCertificate(encodedAikDerCertificate);
