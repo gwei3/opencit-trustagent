@@ -126,7 +126,7 @@ install_tboot_tpm2() {
     local TBOOT_DEB=`ls -1 tboot-*.deb | head -n 1`
     if [ -n "$TBOOT_DEB" ]; then
       dpkg -i $TBOOT_DEB
-      apt-get install -f
+      apt-get -y install -f
     fi
   fi
 }
