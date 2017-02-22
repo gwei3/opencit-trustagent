@@ -240,9 +240,13 @@ for((g=0;g<${#xDigestArray[*]};g++));do
   fi
 done
 
-measurement_name="tbootxm"
-measurement=$(cat "$INFILE_TCB_MEASUREMENT_SHA1")
-xml_module "SHA1" "19" "$measurement_name" "$measurement" >>$OUTFILE
+### looks for tcb measurement hash in /var/log/trustagent/measurement.sha1, adds
+### as a module to OUTFILE
+if [ -f "$INFILE_TCB_MEASUREMENT_SHA1" ]; then
+  measurement_name="tbootxm"
+  measurement=$(cat "$INFILE_TCB_MEASUREMENT_SHA1")
+  xml_module "SHA1" "19" "$measurement_name" "$measurement" >>$OUTFILE
+fi
 
 echo "$BLANK2$BLANK2</modules>" >>$OUTFILE
 echo "$BLANK2</txt>" >>$OUTFILE
