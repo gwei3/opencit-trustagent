@@ -14,6 +14,9 @@ inpriv=$3
 ihash=$4
 outsig=$5
 
+if [ -f /tmp/outputfilename.tmp ]; then
+  rm /tmp/outputfilename.tmp
+fi
 tpm2_load -H $parenthandle -u $inpub -r $inpriv -C /tmp/object.context -n /tmp/outputfilename.tmp > /dev/null
 
 if [[ $? != 0 ]]; then 
@@ -21,7 +24,12 @@ if [[ $? != 0 ]]; then
     exit 1
 fi
 
-
+if [ -f /tmp/hash.bin ]; then
+  rm /tmp/hash.bin
+fi
+if [ -f /tmp/ticket.bin ]; then
+  rm /tmp/ticket.bin
+fi
 tpm2_hash -H e -g 0x00B -I $ihash -o /tmp/hash.bin -t /tmp/ticket.bin > /dev/null
 
 if [[ $? != 0 ]]; then 
@@ -29,7 +37,9 @@ if [[ $? != 0 ]]; then
     exit 1
 fi
 
-
+if [ -f $outsig ]; then
+  rm $outsig
+fi
 tpm2_sign -c /tmp/object.context -g 0x000b -m $ihash -s $outsig -t /tmp/ticket.bin -X > /dev/null
 
 if [[ $? != 0 ]]; then 
