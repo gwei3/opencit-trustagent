@@ -119,14 +119,23 @@ public class CertifyBindingKey extends AbstractSetupTask {
             obj.setOperatingSystem("Linux");
         // set encyrption scheme. This is especially used for TPM 2.0 since the encryption scheme is not included in the TPM_ST_ATTEST_CERTIFY
         // Windows uses PKCS by default; Linux uses OAEP by default,
+        // rsa enc scheme defined in tpm1.2
         short TPM_ES_RSAESPKCSv15 = 0x0002;
         short TPM_ES_RSAESOAEP_SHA1_MGF1 = 0x0003;
+        //rsa enc scheme defined in tpm2.0
+        short TPM_ALG_RSAES = 0x0015; //RSAES-PKCS1_v1_5 -- this is the one hardcoded in tpm2 tools for RSA encryption and decryption
+        short TPM_ALG_OAEP = 0x0017; //RSAES_OAEP padding algorithm
         String osName = System.getProperty("os.name");
         if (osName.toLowerCase().contains("windows"))
             obj.setEncryptionScheme(TPM_ES_RSAESPKCSv15); //Windows
-        else
-            obj.setEncryptionScheme(TPM_ES_RSAESOAEP_SHA1_MGF1); //Linux
-        
+        else {
+            if (Tpm.getTpmVersion().equals("2.0")) {
+                obj.setEncryptionScheme(TPM_ALG_RSAES);
+            }
+            else {
+                obj.setEncryptionScheme(TPM_ES_RSAESOAEP_SHA1_MGF1); //Linux
+            }
+        }
         X509Certificate aikCert = X509Util.decodePemCertificate(FileUtils.readFileToString(aikPemCertificate));
         byte[] encodedAikDerCertificate = X509Util.encodeDerCertificate(aikCert);
         obj.setAikDerCertificate(encodedAikDerCertificate);
