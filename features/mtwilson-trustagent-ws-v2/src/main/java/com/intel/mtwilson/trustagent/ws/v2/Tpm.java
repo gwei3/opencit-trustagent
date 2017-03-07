@@ -142,12 +142,11 @@ public class Tpm {
         logPerformance("ReadIdentityCmd");
 
         // Get the module information
-        if (!osName.toLowerCase().contains("windows")) {
-            new GenerateModulesCmd(context).execute(); // String moduleXml = getXmlFromMeasureLog(configuration);
-            logPerformance("GenerateModulesCmd");
-            new RetrieveTcbMeasurement(context).execute(); //does nothing if measurement.xml does not exist
-            logPerformance("RetrieveTcbMeasurement");
-        }
+        new GenerateModulesCmd(context).execute(); // String moduleXml = getXmlFromMeasureLog(configuration);
+        logPerformance("GenerateModulesCmd");
+        new RetrieveTcbMeasurement(context).execute(); //does nothing if measurement.xml does not exist
+        logPerformance("RetrieveTcbMeasurement");
+    
         new GenerateQuoteCmd(context).execute();
         logPerformance("GenerateQuoteCmd");
         new BuildQuoteXMLCmd(context).execute();
