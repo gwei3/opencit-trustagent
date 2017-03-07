@@ -42,7 +42,14 @@ public class RetrieveTcbMeasurement implements ICommand {
             log.warn("TCB measurement XML file not present at {}.", context.getTcbMeasurementXmlFile().getAbsolutePath());
             // TODO: Need to make this configurable in tboot-xm so that user can make these changes directly and 
             // we do not need to check at multiple locations.
-            tcbMeasurementFile = new File("/var/log/trustagent/measurement.xml");
+			
+			String osName = System.getProperty("os.name");
+			if (!osName.toLowerCase().contains("windows")) {
+				tcbMeasurementFile = new File("/var/log/trustagent/measurement.xml");
+			} else {
+				tcbMeasurementFile = new File("C:\\Windows\\Logs\\MeasuredBoot\\measurement.xml");
+			}
+
             log.warn("Checking to see if the log file exists at {}.", tcbMeasurementFile.getAbsolutePath());
             if (!tcbMeasurementFile.exists()) {
                 log.warn("TCB measurement XML file does not exist at {}.", tcbMeasurementFile.getAbsolutePath());

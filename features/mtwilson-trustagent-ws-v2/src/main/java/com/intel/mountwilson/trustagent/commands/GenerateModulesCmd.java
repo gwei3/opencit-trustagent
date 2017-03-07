@@ -54,37 +54,52 @@ public class GenerateModulesCmd implements ICommand {
      * @author skaja
      */
     private void getXmlFromMeasureLog() throws TAException, IOException {
-        log.debug("About to run the command: " + context.getMeasureLogLaunchScript());
-        long startTime = System.currentTimeMillis();
-        String outputPath = String.format("%s.%s", context.getMeasureLogXmlFile().getAbsolutePath(), RandomUtil.randomHexString(16));
-        log.info("Module output file: {}", String.format("OUTFILE=%s", outputPath));
-        Map<String, String> variables = new HashMap<>();
-        variables.put("OUTFILE", EscapeUtil.doubleQuoteEscapeShellArgument(outputPath));
-        CommandLine command = new CommandLine(EscapeUtil.doubleQuoteEscapeShellArgument(context.getMeasureLogLaunchScript().getAbsolutePath()));
-        Result result = ExecUtil.execute(command, variables);
-        if (result.getExitCode() != 0) {
-            log.error("Error running command [{}]: {}", command.getExecutable(), result.getStderr());
-            throw new TAException(ErrorCode.ERROR, result.getStderr());
-        }
-        log.debug("command stdout: {}", result.getStdout());
+		String osName = System.getProperty("os.name");
+		if (!osName.toLowerCase().contains("windows")) {
+			log.debug("About to run the command: " + context.getMeasureLogLaunchScript());
+			long startTime = System.currentTimeMillis();
+			String outputPath = String.format("%s.%s", context.getMeasureLogXmlFile().getAbsolutePath(), RandomUtil.randomHexString(16));
+			log.info("Module output file: {}", String.format("OUTFILE=%s", outputPath));
+			Map<String, String> variables = new HashMap<>();
+			variables.put("OUTFILE", EscapeUtil.doubleQuoteEscapeShellArgument(outputPath));
+			CommandLine command = new CommandLine(EscapeUtil.doubleQuoteEscapeShellArgument(context.getMeasureLogLaunchScript().getAbsolutePath()));
+			Result result = ExecUtil.execute(command, variables);
+			if (result.getExitCode() != 0) {
+				log.error("Error running command [{}]: {}", command.getExecutable(), result.getStderr());
+				throw new TAException(ErrorCode.ERROR, result.getStderr());
+			}
+			log.debug("command stdout: {}", result.getStdout());
         
-        long endTime = System.currentTimeMillis();
-        log.debug("measureLog.xml is created from txt-stat in Duration MilliSeconds {}", (endTime - startTime));
+			long endTime = System.currentTimeMillis();
+			log.debug("measureLog.xml is created from txt-stat in Duration MilliSeconds {}", (endTime - startTime));
 
-        File outputFile = new File(outputPath);
-        if( outputFile.exists() ) {
-        String content = FileUtils.readFileToString(outputFile);
-        log.debug("Content of the XML file before getting modules: " + content);
+			File outputFile = new File(outputPath);
+			if( outputFile.exists() ) {
+			String content = FileUtils.readFileToString(outputFile);
+			log.debug("Content of the XML file before getting modules: " + content);
         
-        getModulesFromMeasureLogXml(content);
-        outputFile.delete();
-        }
-        else {
+			getModulesFromMeasureLogXml(content);
+			outputFile.delete();
+			}
+			else {
             throw new TAException(ErrorCode.BAD_REQUEST, "Cannot read module log");
+			}
         }
-        
-//        CommandUtil.runCommand(String.format("rm -fr %s", EscapeUtil.doubleQuoteEscapeShellArgument(outfile)));
-        
+		else {
+			// In Windows, there is no script to prepare the xml with module measurements.
+			// We only show 'tbootxm' module for PCR14. Read the measurement and prepare the xml content.
+			File measurementFile = new File("C:\\Windows\\Logs\\MeasuredBoot\\measurement.sha1");
+			if( measurementFile.exists() ) {
+				String measurement = FileUtils.readFileToString(measurementFile);
+				String content = "<measureLog><txt><modules><module><pcrBank>SHA1</pcrBank><pcrNumber>14</pcrNumber><name>tbootxm</name><value>" + measurement + "</value></module></modules></txt></measureLog>";
+				
+				log.debug("Content of the XML file after reading measurement {} ", content);
+				getModulesFromMeasureLogXml(content);
+			}
+			else {
+            throw new TAException(ErrorCode.BAD_REQUEST, "Cannot read measurement file");
+			}
+		}
     }
 
     /**
