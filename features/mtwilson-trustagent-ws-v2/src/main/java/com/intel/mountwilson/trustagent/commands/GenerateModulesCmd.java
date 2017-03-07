@@ -89,7 +89,7 @@ public class GenerateModulesCmd implements ICommand {
 			// In Windows, there is no script to prepare the xml with module measurements.
 			// We only show 'tbootxm' module for PCR14. Read the measurement and prepare the xml content.
 			File measurementFile = new File("C:\\Windows\\Logs\\MeasuredBoot\\measurement.sha1");
-			if( outputFile.exists() ) {
+			if( measurementFile.exists() ) {
 				String measurement = FileUtils.readFileToString(measurementFile);
 				String content = "<measureLog><txt><modules><module><pcrBank>SHA1</pcrBank><pcrNumber>14</pcrNumber><name>tbootxm</name><value>" + measurement + "</value></module></modules></txt></measureLog>";
 				
