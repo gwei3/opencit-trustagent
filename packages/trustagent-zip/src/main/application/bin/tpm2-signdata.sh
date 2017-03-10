@@ -32,7 +32,7 @@ fi
 if [ -f /tmp/signdata.out ]; then
   rm /tmp/signdata.out
 fi
-tpm2_sign -c /tmp/object.context -g 0x0004 -m $icontent -s /tmp/signdata.out -X > /dev/null
+tpm2_sign -c /tmp/object.context -g 0x000B -m $icontent -s /tmp/signdata.out -X > /dev/null
 if [[ $? != 0 ]]; then
     echo "Failed to sign data"
     exit 1
