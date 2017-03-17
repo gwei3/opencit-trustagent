@@ -405,11 +405,24 @@ public class TpmModule20 implements TpmModuleProvider {
                 if(result.getReturnCode() != 0) {
                     throw new TpmModule.TpmModuleException("Failed to certify key after creation");
                 } else {
-                    HashMap<String, byte[]> res = new HashMap<String, byte[]>();               
-                    res.put("keymod", IOUtils.toByteArray(new FileInputStream(publicFile)));
-                    res.put("keyblob", IOUtils.toByteArray(new FileInputStream(privateFile)));
-                    res.put("keydata", IOUtils.toByteArray(new FileInputStream(attestFile)));
-                    res.put("keysig", IOUtils.toByteArray(new FileInputStream(sigFile)));
+                    HashMap<String, byte[]> res = new HashMap<String, byte[]>(); 
+                    
+                    try(FileInputStream pubFileStream = new FileInputStream(publicFile)){
+                        res.put("keymod", IOUtils.toByteArray(pubFileStream));                    
+                    }
+                    
+                    try(FileInputStream privateFileStream = new FileInputStream(privateFile)){
+                        res.put("keyblob", IOUtils.toByteArray(privateFileStream));
+                    }
+                    
+                    try(FileInputStream attestFileStream = new FileInputStream(attestFile)){
+                        res.put("keydata", IOUtils.toByteArray(attestFileStream));
+                    }
+                    
+                    try(FileInputStream sigFileStream = new FileInputStream(sigFile)){
+                        res.put("keysig", IOUtils.toByteArray(sigFileStream));
+                    }
+                    
                     return res;
                 }
             }
