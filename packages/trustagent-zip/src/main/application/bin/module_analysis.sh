@@ -26,7 +26,7 @@ fi
 TXTSTAT="sudo -n $TXTSTAT"
 
 if [ -n "$1" ]; then INFILE="cat $1"; else INFILE="$TXTSTAT"; fi
-INFILE_TCB_MEASUREMENT_SHA256=${INFILE_TCB_MEASUREMENT_SHA1:-/var/log/trustagent/measurement.sha256}
+INFILE_TCB_MEASUREMENT_SHA256=${INFILE_TCB_MEASUREMENT_SHA256:-/var/log/trustagent/measurement.sha256}
 # 2.0 outputs to /opt/trustagent/var/measureLog.xml
 OUTFILE=${OUTFILE:-/opt/trustagent/var/measureLog.xml}
 # 1.2 outputs to measureLog.xml in current directory
@@ -581,7 +581,7 @@ fi
 
 ### looks for tcb measurement hash in /var/log/trustagent/measurement.sha1, adds
 ### as a module to OUTFILE
-if [ -f "$INFILE_TCB_MEASUREMENT_SHA1" ]; then
+if [ -f "$INFILE_TCB_MEASUREMENT_SHA256" ]; then
   measurement_name="tbootxm"
   measurement=$(cat "$INFILE_TCB_MEASUREMENT_SHA256")
   xml_pcr2 "SHA256" "19" "$measurement" "$measurement_name" >>$OUTFILE
