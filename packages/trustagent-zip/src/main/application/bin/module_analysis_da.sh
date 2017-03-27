@@ -242,7 +242,7 @@ done
 
 ### looks for tcb measurement hash in /var/log/trustagent/measurement.sha1, adds
 ### as a module to OUTFILE
-if [ -f "$INFILE_TCB_MEASUREMENT_SHA1" ]; then
+if [ -f "$INFILE_TCB_MEASUREMENT_SHA256" ]; then
   measurement_name="tbootxm"
   measurement=$(cat "$INFILE_TCB_MEASUREMENT_SHA256")
   xml_module "SHA256" "19" "$measurement_name" "$measurement" >>$OUTFILE
