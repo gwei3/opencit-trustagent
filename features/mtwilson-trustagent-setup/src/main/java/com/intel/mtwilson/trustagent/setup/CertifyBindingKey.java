@@ -127,7 +127,12 @@ public class CertifyBindingKey extends AbstractSetupTask {
         short TPM_ALG_OAEP = 0x0017; //RSAES_OAEP padding algorithm
         String osName = System.getProperty("os.name");
         if (osName.toLowerCase().contains("windows"))
-            obj.setEncryptionScheme(TPM_ES_RSAESPKCSv15); //Windows
+            if (Tpm.getTpmVersion().equals("2.0")) {
+                obj.setEncryptionScheme(TPM_ALG_RSAES);
+            }
+            else {
+                obj.setEncryptionScheme(TPM_ES_RSAESPKCSv15);
+            }
         else {
             if (Tpm.getTpmVersion().equals("2.0")) {
                 obj.setEncryptionScheme(TPM_ALG_RSAES);
