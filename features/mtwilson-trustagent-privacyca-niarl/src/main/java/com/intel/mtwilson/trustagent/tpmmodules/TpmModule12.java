@@ -88,10 +88,10 @@ public class TpmModule12 implements TpmModuleProvider {
             log.debug("Index exists. Releasing index...");
             nvRelease(ownerAuth, index);
             log.debug("Creating new index...");
-            nvDefine(ownerAuth, randPasswd, index, 20, "AUTHWRITE");
+            nvDefine(ownerAuth, randPasswd, index, 32, "AUTHWRITE");
         } else {
             log.debug("Index does not exist. Creating it...");
-            nvDefine(ownerAuth, randPasswd, index, 20, "AUTHWRITE");
+            nvDefine(ownerAuth, randPasswd, index, 32, "AUTHWRITE");
         }        
         nvWrite(randPasswd, index, assetTagHash);
         log.debug("Provisioned asset tag");
@@ -103,7 +103,7 @@ public class TpmModule12 implements TpmModuleProvider {
         log.debug("Reading asset tag for Linux TPM 1.2...");
         if(nvIndexExists(index)) {
             log.debug("Asset Tag Index {} exists", index);
-            return nvRead(ownerAuth, index, 20);
+            return nvRead(ownerAuth, index, 32);
         } else {
             throw new TpmModule.TpmModuleException("Asset Tag has not been provisoined on this TPM");
         }
