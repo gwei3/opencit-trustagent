@@ -41,7 +41,7 @@ public class SetAssetTag implements ICommand{
     
     public SetAssetTag(TADataContext context) {
         this.context = context;
-        this.random = new SecureRandom();
+        this.random = RandomUtil.getSecureRandom();
     }
         
     @Override
