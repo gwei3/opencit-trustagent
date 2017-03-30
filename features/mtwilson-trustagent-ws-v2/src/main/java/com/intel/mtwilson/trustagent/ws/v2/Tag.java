@@ -36,7 +36,7 @@ public class Tag {
     @POST
     @Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
     public void writeTag(TagWriteRequest tagInfo, @Context HttpServletResponse response) throws IOException, TpmModule.TpmModuleException {
-        log.debug("writeTag uuid {} sha1 {}", tagInfo.getHardwareUuid(), Hex.encodeHexString(tagInfo.getTag()));       
+        log.debug("writeTag uuid {} sha256 {}", tagInfo.getHardwareUuid(), Hex.encodeHexString(tagInfo.getTag()));       
         TrustagentConfiguration config = new TrustagentConfiguration(TAConfig.getConfiguration());        
         
         Tpm.getModule().setAssetTag(config.getTpmOwnerSecret(), tagInfo.getTag());                
