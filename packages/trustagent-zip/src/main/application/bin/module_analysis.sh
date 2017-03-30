@@ -26,7 +26,7 @@ fi
 TXTSTAT="sudo -n $TXTSTAT"
 
 if [ -n "$1" ]; then INFILE="cat $1"; else INFILE="$TXTSTAT"; fi
-INFILE_TCB_MEASUREMENT_SHA1=${INFILE_TCB_MEASUREMENT_SHA1:-/var/log/trustagent/measurement.sha1}
+INFILE_TCB_MEASUREMENT_SHA256=${INFILE_TCB_MEASUREMENT_SHA256:-/var/log/trustagent/measurement.sha256}
 # 2.0 outputs to /opt/trustagent/var/measureLog.xml
 OUTFILE=${OUTFILE:-/opt/trustagent/var/measureLog.xml}
 # 1.2 outputs to measureLog.xml in current directory
@@ -208,13 +208,11 @@ xml_pcr()
   echo "$BLANK6</module>"
 }
 xml_pcr2() {
-  xml_pcr2_index="$1"
-  xml_pcr2_measurement="$2"
-  xml_pcr2_measurement_name="$3"
   echo "$BLANK6<module>"
-  echo "$BLANK8<pcrNumber>$xml_pcr2_index</pcrNumber>"
-  echo "$BLANK8<name>$xml_pcr2_measurement_name</name>"
-  echo "$BLANK8<value>$xml_pcr2_measurement</value>"
+  echo "$BLANK8<pcrBank>$1</pcrBank>"
+  echo "$BLANK8<pcrNumber>$2</pcrNumber>"
+  echo "$BLANK8<name>$4</name>"
+  echo "$BLANK8<value>$3</value>"
   echo "$BLANK6</module>"
 }
  #main
@@ -572,7 +570,7 @@ else
 	if [[ "$measurement_name" =~ "initramfs" ]]; then measurement_name=initrd; fi
 	if [[ "$measurement_name" =~ "xen" ]]; then measurement_name=xen.gz; fi
 	# output xml snippet
-	xml_pcr2 "$index" "$measurement" "$measurement_name" >>$OUTFILE
+	xml_pcr2 "SHA1" "$index" "$measurement" "$measurement_name" >>$OUTFILE
 	# read the next line and check indent level
     vl_current_line_num=$((vl_current_line_num+1))
     vl_current_indent=`$INFILE | sed -n "$vl_current_line_num p" | grep -o '^TBOOT:[[:space:]]*' | wc -c`
@@ -583,10 +581,10 @@ fi
 
 ### looks for tcb measurement hash in /var/log/trustagent/measurement.sha1, adds
 ### as a module to OUTFILE
-if [ -f "$INFILE_TCB_MEASUREMENT_SHA1" ]; then
+if [ -f "$INFILE_TCB_MEASUREMENT_SHA256" ]; then
   measurement_name="tbootxm"
-  measurement=$(cat "$INFILE_TCB_MEASUREMENT_SHA1")
-  xml_pcr2 "19" "$measurement" "$measurement_name" >>$OUTFILE
+  measurement=$(cat "$INFILE_TCB_MEASUREMENT_SHA256")
+  xml_pcr2 "SHA256" "19" "$measurement" "$measurement_name" >>$OUTFILE
 fi
 
 echo "$BLANK2$BLANK2</modules>" >>$OUTFILE
