@@ -812,7 +812,7 @@ maybe_clear_tpm2() {
             tpm_passwd=$(tagent config tpm.owner.secret)
         fi
         if [ -n "$tpm_passwd" ]; then
-            local is_owner=$(TRUSTAGENT_HOME/bin/tpm2-isowner "$tpm_passwd")
+            local is_owner=$($TRUSTAGENT_HOME/bin/tpm2-isowner "$tpm_passwd")
             if [ "$is_owner" == "0" ]; then
                 # we are not the owner. clear it.
                 tpm2_takeownership -c
