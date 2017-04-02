@@ -198,9 +198,6 @@ public class TrustAgentClient extends MtWilsonClient {
      * </pre>
      * @mtwSampleApiCall
      * <div style="word-wrap: break-word; width: 1024px"><pre><xmp>
-     *   import com.intel.dcsg.cpg.crypto.Sha256Digest;
-     *   import com.intel.dcsg.cpg.io.UUID;
-     * 
      *   TrustAgentClient client = new TrustAgentClient(properties, new TlsConnection(url, tlsPolicy));
      *   //data = byte array of x509 certificate containing asset tags
      *   byte[] tag = Sha256Digest.digestOf(data).toByteArray();
