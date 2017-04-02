@@ -169,10 +169,43 @@
                         </executions>
                     </plugin>
                     
+                    <!-- copy dependencies plugin (to create zip file) -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>generate-resources</phase> <!-- was: install -->
+                                <goals>
+                                    <goal>copy-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.directory}/jars</outputDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
                         <executions>
+                            <execution>
+                                <id>zip-jars-for-client</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <zip destfile="${project.build.directory}/${project.artifactId}-${project.version}.zip">
+                                            <fileset dir="${project.build.directory}/jars" />
+                                            <fileset dir="${project.build.directory}" includes="${project.artifactId}-${project.version}.jar" />
+                                            <fileset dir="${basedir}" includes="pom.xml" />
+                                        </zip>
+                                    </target>
+                                </configuration>
+                            </execution>
                             <execution>
                                 <id>zip-javadoc-site</id>
                                 <phase>package</phase>
@@ -220,6 +253,10 @@
                                 </goals>
                                 <configuration>
                                     <artifacts>
+                                        <artifact>
+                                            <file>${project.build.directory}/${project.artifactId}-${project.version}.zip</file>
+                                            <type>zip</type>
+                                        </artifact>
                                         <artifact>
                                             <file>${project.build.directory}/${project.artifactId}-${project.version}-javadoc.zip</file>
                                             <type>zip</type>

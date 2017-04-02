@@ -19,7 +19,7 @@ http://maven.apache.org/plugins/maven-site-plugin/examples/sitedescriptor.html
     <body>
         <menu>
             <item name="Overview" href="index.html"/>
-            <!--<item name="Quickstart" href="quickstart.html"/>-->
+            <item name="Quickstart" href="quickstart.html"/>
             <item name="Dependencies" href="dependencies.html"/>
             <item name="Javadoc" href="apidocs/index.html"/>
             <item name="Project Summary" href="project-summary.html"/>
