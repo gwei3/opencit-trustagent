@@ -97,7 +97,8 @@ public class GenerateModulesCmd implements ICommand {
 				getModulesFromMeasureLogXml(content);
 			}
 			else {
-            throw new TAException(ErrorCode.BAD_REQUEST, "Cannot read measurement file");
+            log.info("No measurement file available for reading tbootxm measurement");
+			//throw new TAException(ErrorCode.BAD_REQUEST, "Cannot read measurement file");
 			}
 		}
     }
