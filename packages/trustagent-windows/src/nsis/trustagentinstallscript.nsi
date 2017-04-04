@@ -11,7 +11,7 @@ Name "Intel CIT Trust Agent"
 OutFile "Setup_TrustAgent.exe"
 
 # Set the default Installation Directory
-InstallDir "$PROGRAMFILES\Intel\TrustAgent"
+InstallDir "$PROGRAMFILES\Intel\Trustagent"
 
 # Set the text which prompts the user to enter the installation directory
 DirText "Please choose a directory to which you'd like to install this application."
@@ -344,7 +344,6 @@ Section "install"
         File "inittraysetup.cmd"
 
 
-        ;
         # If trustagent.env file is not already created by Installer UI, copy from extracted files
         IfFileExists "$INSTDIR\trustagent.env" exists doesnotexist
         exists:
@@ -366,10 +365,10 @@ Section "install"
 
         # Create Useful Shortcuts
         CreateDirectory "$SMPROGRAMS\Intel"
-        CreateDirectory "$SMPROGRAMS\Intel\TrustAgent"
+        CreateDirectory "$SMPROGRAMS\Intel\Trustagent"
         CreateDirectory "$INSTDIR\logs"
         CreateDirectory "$INSTDIR\var"
-        CreateShortCut "$SMPROGRAMS\Intel\TrustAgent\Uninstall Example Application 1.lnk" "$INSTDIR\Uninstall.exe"
+        CreateShortCut "$SMPROGRAMS\Intel\Trustagent\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
 
         # Create Registry Keys for Add/Remove Programs in Control Panel
         WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\TrustAgent" "DisplayName" "TrustAgent"
@@ -445,8 +444,8 @@ Section "Uninstall"
         nsExec::Exec 'cmd /k netsh advfirewall firewall delete rule name="trustagent"'
 
         # Remove files from installation directory
+		Delete $INSTDIR\vcredist_x64.exe
         Delete $INSTDIR\TrustAgent.exe
-
         Delete $INSTDIR\TrustAgentTray.exe
         Delete $INSTDIR\Uninstall.exe
         RMDir /r $INSTDIR
@@ -460,7 +459,7 @@ Section "Uninstall"
         Call un.RemoveFromPath
 
         # Delete uninstallation shortcut
-        Delete "$SMPROGRAMS\Intel\TrustAgent\Uninstall Example Application 1.lnk"
+        Delete "$SMPROGRAMS\Intel\Trustagent\Uninstall.lnk"
 
         # Delete Registry Keys
         DeleteRegKey HKEY_LOCAL_MACHINE "SOFTWARE\TrustAgent"
@@ -556,7 +555,7 @@ Function CITServerPage
                Pop $mylabel
         ${else}
                   MessageBox MB_OK "Microsoft Visual C++ not installed properly. Exiting the Trust Agent Installation.."
-                  Quit
+                  Abort
         ${endif}
         ${NSD_CreateLabel} 0 100 100% 12u "Please ensure that Intel CIT Server is running for CIT Trust Agent."
         Pop $mylabel
