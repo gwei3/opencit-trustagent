@@ -58,7 +58,7 @@ public class GenerateModulesCmd implements ICommand {
 		if (!osName.toLowerCase().contains("windows")) {
 			log.debug("About to run the command: " + context.getMeasureLogLaunchScript());
 			long startTime = System.currentTimeMillis();
-			String outputPath = String.format("%s.%s", context.getMeasureLogXmlFile().getAbsolutePath(), RandomUtil.randomHexString(16));
+			String outputPath = String.format("%s", context.getMeasureLogXmlFile().getAbsolutePath());
 			log.info("Module output file: {}", String.format("OUTFILE=%s", outputPath));
                         File outputFile = new File(outputPath);
                         if (!outputFile.exists()) {
