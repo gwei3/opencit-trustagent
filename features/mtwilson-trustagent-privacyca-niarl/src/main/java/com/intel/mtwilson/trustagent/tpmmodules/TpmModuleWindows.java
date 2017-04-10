@@ -67,10 +67,10 @@ public class TpmModuleWindows implements TpmModuleProvider {
             log.debug("Index exists. Releasing index...");
             nvRelease(ownerAuth, index);
             log.debug("Creating new index...");
-            nvDefine(ownerAuth, randPasswd, index, 20, "AUTHWRITE");
+            nvDefine(ownerAuth, randPasswd, index, 32, "AUTHWRITE"); //change the size to 32 bytes since we are using sha256 of asset tag
         } else {
             log.debug("Index does not exist. Creating it...");
-            nvDefine(ownerAuth, randPasswd, index, 20, "AUTHWRITE");
+            nvDefine(ownerAuth, randPasswd, index, 32, "AUTHWRITE"); //change the size to 32 bytes since we are using sha256 of asset tag
         }
         
         nvWrite(randPasswd, index, assetTagHash);
@@ -83,7 +83,7 @@ public class TpmModuleWindows implements TpmModuleProvider {
         log.debug("Reading asset tag for Windows...");
         if(nvIndexExists(index)) {
             log.debug("Asset Tag Index {} exists", index);
-            return nvRead(ownerAuth, index, 20);
+            return nvRead(ownerAuth, index, 32); //change the size to 32 bytes since we are using sha256 of asset tag
         } else {
             throw new TpmModule.TpmModuleException("Asset Tag has not been provisioned on this TPM");
         }
@@ -149,7 +149,7 @@ public class TpmModuleWindows implements TpmModuleProvider {
     @Override
     public byte[] nvRead(byte[] ownerAuth, String index, int size) throws IOException, TpmModuleException {
         try {
-            String cmd = "tpmtool.exe nvread " + index;
+            String cmd = "tpmtool.exe nvread " + index + " 0x" + Integer.toHexString(size);
             log.debug("Running command: " + cmd);
             CommandResult cmdResult = CommandUtil.runCommand(cmd);
             
