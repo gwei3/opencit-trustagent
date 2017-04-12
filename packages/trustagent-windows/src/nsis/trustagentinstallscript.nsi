@@ -325,7 +325,6 @@ Section "install"
 
         SetOutPath $INSTDIR\
 
-        File /r "..\bootdriver"
         File /r "..\configuration"
         File /r "..\env.d"
         File /r "..\hypertext"
@@ -435,10 +434,6 @@ Section "Uninstall"
         nsExec::Exec 'cmd /k schtasks /end /tn TrustAgentTray /f'
         nsExec::Exec 'cmd /k schtasks /delete /tn TrustAgentTray /f'
         nsExec::Exec 'wmic process where $\"name like $\'TrustAgentTray.exe$\'$\" call terminate'
-
-
-        # Uninstall CITBOOTDRIVER
-        nsExec::Exec 'cmd /k "$INSTDIR\bootdriver\citbootdriversetup.exe" uninstall'
 
         # Remove Firewall rule
         nsExec::Exec 'cmd /k netsh advfirewall firewall delete rule name="trustagent"'
