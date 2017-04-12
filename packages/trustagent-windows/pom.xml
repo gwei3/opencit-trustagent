@@ -74,7 +74,7 @@
                 <dependency>
                     <groupId>com.oracle</groupId>
                     <artifactId>jre</artifactId>
-                    <version>1.8.0_121</version>
+                    <version>1.8</version>
                     <classifier>windows-x64</classifier>
                     <type>tar.gz</type>
                 </dependency>	
@@ -121,7 +121,7 @@
                                         <artifactItem>
                                             <groupId>com.oracle</groupId>
                                             <artifactId>jre</artifactId>
-                                            <version>1.8.0_121</version>
+                                            <version>1.8</version>
                                             <classifier>windows-x64</classifier>
                                             <type>tar.gz</type>
                                             <outputDirectory>${makeself.directory}/jre</outputDirectory>
