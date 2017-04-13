@@ -59,6 +59,19 @@
     </target>
     
     <target name="javadoc" depends="init">
+        <!-- the root pom and all projects -->
+        <exec executable="${cmd.maven}" dir="features/mtwilson-trustagent-client-jaxrs2" resultproperty="mavenExitJavadoc">
+            <env key="LINUX_TARGET" value="${env.LINUX_TARGET}"/>
+            <arg value="-Ddependency.locations.enabled=false"/>
+            <arg value="-Drelease"/>
+            <arg value="-DskipTests=true"/>
+            <arg value="javadoc:javadoc"/>
+            <arg value="site:site"/>
+            <arg value="install"/>
+        </exec>
+        <fail message="Failed to build javadoc" status="${mavenExitJavadoc}">
+            <condition><not><equals arg1="${mavenExitJavadoc}" arg2="0"/></not></condition>
+        </fail>
     </target>
     
     <target name="packages" depends="init,javadoc">
@@ -73,5 +86,20 @@
     </target>
     
     <target name="all" depends="ready,clean,build,packages"></target>
+        <target name="klocwork" depends="init,ready">
+        <exec executable="/bin/bash">
+		      <arg value="klocwork.sh"/>
+		</exec>
+    </target>
     
+    <target name="build-with-scans">
+        <parallel>
+            <exec executable="ant">
+                <arg value="all"/>
+            </exec>
+            <exec executable="ant">
+                <arg value="klocwork"/>
+            </exec>
+        </parallel>
+    </target>
 </project>

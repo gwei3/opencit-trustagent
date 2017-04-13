@@ -56,7 +56,7 @@
 # application defaults (these are not configurable and used only in this script so no need to export)
 DEFAULT_TRUSTAGENT_HOME=/opt/trustagent
 DEFAULT_TRUSTAGENT_USERNAME=tagent
-JAVA_REQUIRED_VERSION=${JAVA_REQUIRED_VERSION:-1.7}
+JAVA_REQUIRED_VERSION=${JAVA_REQUIRED_VERSION:-1.8}
 
 # default settings
 export TRUSTAGENT_HOME=${TRUSTAGENT_HOME:-$DEFAULT_TRUSTAGENT_HOME}
@@ -288,7 +288,7 @@ package_config_filename=${TRUSTAGENT_V_1_2_CONFIGURATION}/trustagent.properties
 ASSET_TAG_SETUP="y"
 
 # make sure unzip and authbind are installed
-#java_required_version=1.7.0_51
+#java_required_version=1.8
 #Adding redhat-lsb libvirt for bug 5289
 #Adding net-tools for bug 5285
 #adding openssl-devel for bug 5284
@@ -381,15 +381,17 @@ if [[ ! -h $TRUSTAGENT_BIN/tagent ]]; then
   ln -s $TRUSTAGENT_BIN/tagent.sh $TRUSTAGENT_BIN/tagent
 fi
 
-### INSTALL MEASUREMENT AGENT --comment out for now for cit 2.2
-echo "Installing measurement agent..."
-TBOOTXM_PACKAGE=`ls -1 tbootxm-*.bin 2>/dev/null | tail -n 1`
-if [ -z "$TBOOTXM_PACKAGE" ]; then
-  echo_failure "Failed to find measurement agent installer package"
-  exit -1
+if [ "$TBOOTXM_INSTALL" != "N" ] && [ "$TBOOTXM_INSTALL" != "No" ] && [ "$TBOOTXM_INSTALL" != "n" ] && [ "$TBOOTXM_INSTALL" != "no" ]; then 
+  ### INSTALL MEASUREMENT AGENT --comment out for now for cit 2.2
+  echo "Installing measurement agent..."
+  TBOOTXM_PACKAGE=`ls -1 tbootxm-*.bin 2>/dev/null | tail -n 1`
+  if [ -z "$TBOOTXM_PACKAGE" ]; then
+    echo_failure "Failed to find measurement agent installer package"
+    exit -1
+  fi
+  ./$TBOOTXM_PACKAGE
+  if [ $? -ne 0 ]; then echo_failure "Failed to install measurement agent"; exit -1; fi
 fi
-./$TBOOTXM_PACKAGE
-if [ $? -ne 0 ]; then echo_failure "Failed to install measurement agent"; exit -1; fi
 
 # Migrate any old data to the new locations  (should be rewritten in java)
 v1_aik=$TRUSTAGENT_V_1_2_CONFIGURATION/cert
@@ -560,17 +562,16 @@ chmod -R 700 "$TRUSTAGENT_HOME"/share/scripts
 chown -R $TRUSTAGENT_USERNAME:$TRUSTAGENT_USERNAME "$TRUSTAGENT_HOME"/share/scripts
 chmod +x $TRUSTAGENT_BIN/*
 
-# in 3.0, java home is now under trustagent home by default
-JAVA_HOME=${JAVA_HOME:-$TRUSTAGENT_HOME/share/jdk1.7.0_51}
-mkdir -p "$TRUSTAGENT_HOME/share"   #$JAVA_HOME
-#java_install $JAVA_PACKAGE
-JAVA_PACKAGE=$(ls -1 jdk-* jre-* java-* 2>/dev/null | tail -n 1)
-java_install_in_home $JAVA_PACKAGE
-
+# Trust Agent requires java 1.8 or later
+echo "Installing Java..."
+java_install_openjdk
+JAVA_CMD=$(type -p java | xargs readlink -f)
+JAVA_HOME=$(dirname $JAVA_CMD | xargs dirname | xargs dirname)
+JAVA_REQUIRED_VERSION=$(java -version 2>&1 | head -n 1 | awk -F '"' '{print $2}')
 # store java location in env file
 echo "# $(date)" > $TRUSTAGENT_ENV/trustagent-java
 echo "export JAVA_HOME=$JAVA_HOME" >> $TRUSTAGENT_ENV/trustagent-java
-echo "export JAVA_CMD=$JAVA_HOME/bin/java" >> $TRUSTAGENT_ENV/trustagent-java
+echo "export JAVA_CMD=$JAVA_CMD" >> $TRUSTAGENT_ENV/trustagent-java
 echo "export JAVA_REQUIRED_VERSION=$JAVA_REQUIRED_VERSION" >> $TRUSTAGENT_ENV/trustagent-java
 
 if [ -f "${JAVA_HOME}/jre/lib/security/java.security" ]; then
@@ -811,7 +812,7 @@ maybe_clear_tpm2() {
             tpm_passwd=$(tagent config tpm.owner.secret)
         fi
         if [ -n "$tpm_passwd" ]; then
-            local is_owner=$(TRUSTAGENT_HOME/bin/tpm2-isowner "$tpm_passwd")
+            local is_owner=$($TRUSTAGENT_HOME/bin/tpm2-isowner "$tpm_passwd")
             if [ "$is_owner" == "0" ]; then
                 # we are not the owner. clear it.
                 tpm2_takeownership -c

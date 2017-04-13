@@ -3,7 +3,7 @@
 !include "wordfunc.nsh"
 !include "FileFunc.nsh"
 !include "nsDialogs.nsh"
-
+!include "WinMessages.nsh"
 # Name of application
 Name "Intel CIT Trust Agent"
 
@@ -11,7 +11,7 @@ Name "Intel CIT Trust Agent"
 OutFile "Setup_TrustAgent.exe"
 
 # Set the default Installation Directory
-InstallDir "$PROGRAMFILES\Intel\TrustAgent"
+InstallDir "$PROGRAMFILES\Intel\Trustagent"
 
 # Set the text which prompts the user to enter the installation directory
 DirText "Please choose a directory to which you'd like to install this application."
@@ -23,7 +23,13 @@ var mylabel
 var vcr1Flag
 var dialog
 var label1
-var text1
+var /Global text1
+var /Global INIFILE
+var /Global MTWILSON_API_URL
+var /Global MTWILSON_API_USERNAME
+var /Global MTWILSON_API_PASSWORD
+var /Global MTWILSON_TLS_CERT_SHA1
+var /Global MTWILSON_TLS_CERT_SHA256
 
 !define Environ 'HKCU "Environment"'
 !define MUI_ICON "TAicon.ico"
@@ -312,16 +318,13 @@ Section "install"
         File /r "..\bin\getvmmver.cmd"
         File /r "..\bin\tasetup.cmd"
         File /r "..\bin\taupgrade.cmd"
-        File /r "..\share\tpmtools\bin\tpm_bindaeskey"
-        File /r "..\share\tpmtools\bin\tpm_createkey"
-        File /r "..\share\tpmtools\bin\tpm_signdata"
-        File /r "..\share\tpmtools\bin\tpm_unbindaeskey"
-        File /r "..\tpmtool\TpmAtt.dll"
-        File /r "..\tpmtool\TPMTool.exe"
+        File /r "..\tpmtools\tpm_signdata.exe"
+        File /r "..\tpmtools\tpm_unbindaeskey.exe"
+        File /r "..\tpmtools\TpmAtt.dll"
+        File /r "..\tpmtools\TPMTool.exe"
 
         SetOutPath $INSTDIR\
 
-        File /r "..\bootdriver"
         File /r "..\configuration"
         File /r "..\env.d"
         File /r "..\hypertext"
@@ -332,7 +335,7 @@ Section "install"
         File "..\version"
         File "readme.txt"
         File "TAicon.ico"
-        File "..\tpmtool\vcredist_x64.exe"
+        File "..\3rdparty\vcredist_x64.exe"
         File "TrustAgent.exe"
         File "TrustAgentTray.exe"
         File "nocmd.vbs"
@@ -340,7 +343,6 @@ Section "install"
         File "inittraysetup.cmd"
 
 
-        ;
         # If trustagent.env file is not already created by Installer UI, copy from extracted files
         IfFileExists "$INSTDIR\trustagent.env" exists doesnotexist
         exists:
@@ -362,10 +364,10 @@ Section "install"
 
         # Create Useful Shortcuts
         CreateDirectory "$SMPROGRAMS\Intel"
-        CreateDirectory "$SMPROGRAMS\Intel\TrustAgent"
+        CreateDirectory "$SMPROGRAMS\Intel\Trustagent"
         CreateDirectory "$INSTDIR\logs"
         CreateDirectory "$INSTDIR\var"
-        CreateShortCut "$SMPROGRAMS\Intel\TrustAgent\Uninstall Example Application 1.lnk" "$INSTDIR\Uninstall.exe"
+        CreateShortCut "$SMPROGRAMS\Intel\Trustagent\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
 
         # Create Registry Keys for Add/Remove Programs in Control Panel
         WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\TrustAgent" "DisplayName" "TrustAgent"
@@ -433,16 +435,12 @@ Section "Uninstall"
         nsExec::Exec 'cmd /k schtasks /delete /tn TrustAgentTray /f'
         nsExec::Exec 'wmic process where $\"name like $\'TrustAgentTray.exe$\'$\" call terminate'
 
-
-        # Uninstall CITBOOTDRIVER
-        nsExec::Exec 'cmd /k "$INSTDIR\bootdriver\citbootdriversetup.exe" uninstall'
-
         # Remove Firewall rule
         nsExec::Exec 'cmd /k netsh advfirewall firewall delete rule name="trustagent"'
 
         # Remove files from installation directory
+		Delete $INSTDIR\vcredist_x64.exe
         Delete $INSTDIR\TrustAgent.exe
-
         Delete $INSTDIR\TrustAgentTray.exe
         Delete $INSTDIR\Uninstall.exe
         RMDir /r $INSTDIR
@@ -456,7 +454,7 @@ Section "Uninstall"
         Call un.RemoveFromPath
 
         # Delete uninstallation shortcut
-        Delete "$SMPROGRAMS\Intel\TrustAgent\Uninstall Example Application 1.lnk"
+        Delete "$SMPROGRAMS\Intel\Trustagent\Uninstall.lnk"
 
         # Delete Registry Keys
         DeleteRegKey HKEY_LOCAL_MACHINE "SOFTWARE\TrustAgent"
@@ -501,6 +499,16 @@ Function .onInit
 
 
         prereq:
+                ; Start Code to specify ini file path
+                StrCpy "$INIFILE" "$EXEDIR\system.ini"
+                IfFileExists "$INIFILE" 0 file_not_found
+                            goto proceed_further
+                file_not_found:
+                            MessageBox MB_OK "System Configuration file doesn't exists in installer folder"
+                            Abort
+                proceed_further: ; End Code to specify ini file path
+        
+        
                 StrCpy $2 "Name like '%%Microsoft Visual C++ 2013 x64 Minimum Runtime%%'"
                 nsExec::ExecToStack 'wmic product where "$2" get name'
                 Pop $0
@@ -516,7 +524,7 @@ Function .onInit
                 inst:
                      SetOutPath $INSTDIR\
 
-                     File "..\tpmtool\vcredist_x64.exe"
+                     File "..\3rdparty\vcredist_x64.exe"
                      ExecWait '$INSTDIR\vcredist_x64.exe /install /passive /norestart'
                      StrCpy $2 "Name like '%%Microsoft Visual C++ 2013 x64 Minimum Runtime%%'"
                      nsExec::ExecToStack 'wmic product where "$2" get name'
@@ -542,7 +550,7 @@ Function CITServerPage
                Pop $mylabel
         ${else}
                   MessageBox MB_OK "Microsoft Visual C++ not installed properly. Exiting the Trust Agent Installation.."
-                  Quit
+                  Abort
         ${endif}
         ${NSD_CreateLabel} 0 100 100% 12u "Please ensure that Intel CIT Server is running for CIT Trust Agent."
         Pop $mylabel
@@ -564,25 +572,36 @@ Function EnvCustomPage
         continue:
                 !insertmacro MUI_HEADER_TEXT $(INSTALL_PREREQ_TITLE) $(ENV_SUBTITLE)
                 nsDialogs::Create 1018
-	        Pop $dialog
+				Pop $dialog
+	        
+                ReadINIStr $MTWILSON_API_URL "$INIFILE" "TRUST_AGENT" "MTWILSON_API_URL"
+                ReadINIStr $MTWILSON_API_USERNAME "$INIFILE" "TRUST_AGENT" "MTWILSON_API_USERNAME"
+                ReadINIStr $MTWILSON_API_PASSWORD "$INIFILE" "TRUST_AGENT" "MTWILSON_API_PASSWORD"
+                ReadINIStr $MTWILSON_TLS_CERT_SHA1 "$INIFILE" "TRUST_AGENT" "MTWILSON_TLS_CERT_SHA1"
+	        ReadINIStr $MTWILSON_TLS_CERT_SHA256 "$INIFILE" "TRUST_AGENT" "MTWILSON_TLS_CERT_SHA256"
+	
+                ${NSD_CreateLabel} 0 0 100% 20% "MTWILSON_API_URL : $MTWILSON_API_URL"
+                ${NSD_CreateLabel} 0 10% 100% 20% "MTWILSON_API_USERNAME : $MTWILSON_API_USERNAME"
+                ${NSD_CreateLabel} 0 20% 100% 20% "MTWILSON_API_PASSWORD : $MTWILSON_API_PASSWORD"
+	        ${If} $MTWILSON_TLS_CERT_SHA1 == ""
+			${NSD_CreateLabel} 0 30% 100% 20% "MTWILSON_TLS_CERT_SHA256 : $MTWILSON_TLS_CERT_SHA256"
+		${ELSE}
+			${NSD_CreateLabel} 0 30% 100% 20% "MTWILSON_TLS_CERT_SHA1 : $MTWILSON_TLS_CERT_SHA1"
+                ${EndIf}
 
-                Push $R0
-                Push $R1
-                Push $R2
-                 
-	        SetOutPath $INSTDIR
-                File "..\trustagent.env"
-                FileOpen $R0 "trustagent.env" r
+                StrCpy $text1 ""
                 StrCpy $R1 ""
-                loop:
-                        FileRead $R0 $R2
-                        StrCpy $R1 "$R1$R2"
-                        IfErrors +1 loop
-                FileClose $R0
+                StrCpy $R1 "MTWILSON_API_URL=$MTWILSON_API_URL"
+                StrCpy $R1 "$R1$\r$\nMTWILSON_API_USERNAME=$MTWILSON_API_USERNAME"
+                StrCpy $R1 "$R1$\r$\nMTWILSON_API_PASSWORD=$MTWILSON_API_PASSWORD"
 
-                ${NSD_CreateTextMultiline} 0% 0% 100% 80% $R1
-		Pop $text1
-		ShowWindow $text1 ${SW_SHOW}
+		${If} $MTWILSON_TLS_CERT_SHA1 == ""
+                	StrCpy $R1 "$R1$\r$\nMTWILSON_TLS_CERT_SHA256=$MTWILSON_TLS_CERT_SHA256"
+                ${ELSE}
+                	StrCpy $R1 "$R1$\r$\nMTWILSON_TLS_CERT_SHA1=$MTWILSON_TLS_CERT_SHA1"
+                ${EndIf}
+
+                StrCpy $text1 $R1
 
                 ${NSD_CreateLabel} 0% 85% 100% 15% "Above settings will be saved in $INSTDIR\trustagent.env."
 		Pop $label1
@@ -592,14 +611,14 @@ Function EnvCustomPage
 		Pop $R1
 		Pop $R0
 
-                nsDialogs::Show
+        nsDialogs::Show
 FunctionEnd
 
 Function EnvCustomLeave
         Push $R0
         Push $R1
 
-        ${NSD_GetText} $text1 $R0
+        StrCpy $R0 $text1
         StrCmp $R0 "" textboxcheck
         SetOutPath $INSTDIR
         FileOpen $R1 "trustagent.env" w

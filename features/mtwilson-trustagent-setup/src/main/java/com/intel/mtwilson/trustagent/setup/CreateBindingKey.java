@@ -7,6 +7,8 @@ package com.intel.mtwilson.trustagent.setup;
 import com.intel.dcsg.cpg.crypto.RandomUtil;
 import com.intel.mtwilson.setup.AbstractSetupTask;
 import com.intel.mtwilson.trustagent.TrustagentConfiguration;
+import com.intel.mtwilson.trustagent.tpmmodules.Tpm;
+
 import gov.niarl.his.privacyca.TpmCertifyKey;
 import gov.niarl.his.privacyca.TpmModule;
 import java.io.File;
@@ -25,6 +27,7 @@ public class CreateBindingKey extends AbstractSetupTask {
     private File bindingKeyModulus;
     private File bindingKeyTCGCertificate;
     private File bindingKeyTCGCertificateSignature;
+    private File bindingKeyOpaqueBlob;
     
     @Override
     protected void configure() throws Exception {
@@ -61,6 +64,13 @@ public class CreateBindingKey extends AbstractSetupTask {
             validation("Public component of binding key does not exist.");
         }
         
+        String os = System.getProperty("os.name").toLowerCase();
+    	if  (os.indexOf( "win" ) >= 0) { //Windows
+			bindingKeyOpaqueBlob = trustagentConfiguration.getBindingKeyOpaqueBlobFile();
+			if (bindingKeyOpaqueBlob == null || !bindingKeyOpaqueBlob.exists()) {
+				validation("Opaque blob component of binding key does not exist.");
+			}
+        }
     }
 
     @Override
@@ -72,29 +82,38 @@ public class CreateBindingKey extends AbstractSetupTask {
         log.info("Generated random Binding key secret"); 
         
         getConfiguration().set(TrustagentConfiguration.BINDING_KEY_SECRET, bindingKeySecretHex);
-        
+            
         // Call into the TpmModule certifyKey function to create the binding key and certify the same using AIK to build the chain of trust.
-        HashMap<String, byte[]> certifyKey = TpmModule.certifyKey(TrustagentConfiguration.BINDING_KEY_NAME, trustagentConfiguration.getBindingKeySecret(), 
-                trustagentConfiguration.getBindingKeyIndex(), trustagentConfiguration.getAikSecret(), trustagentConfiguration.getAikIndex());
+        HashMap<String, byte[]> certifyKey = Tpm.getModule().certifyKey(TrustagentConfiguration.BINDING_KEY_NAME, trustagentConfiguration.getBindingKeySecret(), 
+                trustagentConfiguration.getBindingKeyIndex(), trustagentConfiguration.getAikSecret(), trustagentConfiguration.getAikHandle());
         
+        // Store the public key modulus, tcg standard certificate (output of certifyKey) & the private key blob.
         bindingKeyBlob = trustagentConfiguration.getBindingKeyBlobFile();
         bindingKeyTCGCertificate = trustagentConfiguration.getBindingKeyTCGCertificateFile(); 
         bindingKeyModulus = trustagentConfiguration.getBindingKeyModulusFile();
         bindingKeyTCGCertificateSignature = trustagentConfiguration.getBindingKeyTCGCertificateSignatureFile();
+        bindingKeyOpaqueBlob = trustagentConfiguration.getBindingKeyOpaqueBlobFile();
         
         log.debug("Blob path is : {}", bindingKeyBlob.getAbsolutePath());
         log.debug("TCG Cert path is : {}", bindingKeyTCGCertificate.getAbsolutePath());
         log.debug("TCG Cert signature path is : {}", bindingKeyTCGCertificateSignature.getAbsolutePath());
         log.debug("Public key modulus path is : {}", bindingKeyModulus.getAbsolutePath());
-        
+                
         FileUtils.writeByteArrayToFile(bindingKeyModulus, certifyKey.get("keymod"));
         FileUtils.writeByteArrayToFile(bindingKeyBlob, certifyKey.get("keyblob"));
         FileUtils.writeByteArrayToFile(bindingKeyTCGCertificate, certifyKey.get("keydata"));
         FileUtils.writeByteArrayToFile(bindingKeyTCGCertificateSignature, certifyKey.get("keysig"));
         
-        TpmCertifyKey tpmCertifyKey = new TpmCertifyKey(certifyKey.get("keydata"));
-        log.debug("TCG Binding Key contents: {} - {}", tpmCertifyKey.getKeyParms().getAlgorithmId(), tpmCertifyKey.getKeyParms().getTrouSerSmode());
-
+        String os = System.getProperty("os.name").toLowerCase();
+    	if  (os.indexOf( "win" ) >= 0) { //Windows
+            FileUtils.writeByteArrayToFile(bindingKeyOpaqueBlob, certifyKey.get("keyopaque"));
+			log.debug("Opaque blob path is : {}", bindingKeyOpaqueBlob.getAbsolutePath());
+        }
+		
+		if (Tpm.getTpmVersion().equals("1.2")) {
+            TpmCertifyKey tpmCertifyKey = new TpmCertifyKey(certifyKey.get("keydata"));
+            log.debug("TCG Binding Key contents: {} - {}", tpmCertifyKey.getKeyParms().getAlgorithmId(), tpmCertifyKey.getKeyParms().getTrouSerSmode());
+        }
         log.info("Successfully created the Binding key TCG certificate and the same has been stored at {}.", bindingKeyTCGCertificate.getAbsolutePath());
                 
     }    

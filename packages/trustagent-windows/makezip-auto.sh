@@ -27,11 +27,11 @@ if [ ! -d "$workspace" ]; then echo "Cannot find workspace '$workspace'"; exit 1
 chmod +x $workspace/*.sh 
 
 # check for the makeself tool
-makezip=`which zip`
-if [ -z "$makezip" ]; then
-    echo "Missing zip tool"
-    exit 1
-fi
+#makezip=`which zip`
+#if [ -z "$makezip" ]; then
+#    echo "Missing zip tool"
+#    exit 1
+#fi
 
 # unzip the trustagent-3.0-SNAPSHOT.zip since we are going to zip it again
 trustagentZip="trustagent-${projectVersion}.zip"
@@ -39,7 +39,27 @@ cd $targetDir/${projectNameVersion}
 unzip -o ${trustagentZip}
 rm -rf ${trustagentZip}
 mv *.cmd bin/
+mv *.exe bin/
 mv logback.xml.base configuration/
+
+# unzip the tpmtools-windows-3.0-SNAPSHOT.zip
+tpmtoolPkgName="tpmtools-windows"
+tpmtoolPkgNameVersion="${tpmtoolPkgName}-${projectVersion}"
+cd $targetDir/${projectNameVersion}
+unzip -o ${tpmtoolPkgNameVersion}.zip
+mv ${tpmtoolPkgNameVersion} tpmtools
+rm -rf ${tpmtoolPkgNameVersion}.zip
+
+# transfer jre windows from .tar.gz to self-extract exe
+cd $targetDir/${projectNameVersion}/jre
+mkdir jre-tmp
+tar -xf jre*.tar.gz --strip 1 -C jre-tmp
+#zip the jre
+cd jre-tmp && zip -r ../jre.zip *
+cd ..
+#clean up the directory
+rm -rf jre-tmp
+rm -rf jre*.tar.gz
 
 export TMPDIR=~/.tmp
 
@@ -51,7 +71,7 @@ if [ -z "$MAKENSIS" ]; then
 fi
 
 cd $targetDir
-$MAKENSIS "${projectNameVersion}/nsis/trustagentinstallscript.nsi"
+"$MAKENSIS" "${projectNameVersion}/nsis/trustagentinstallscript.nsi"
 if [ $? -ne 0 ]; then echo "Failed to make the NSI trustagent install script"; exit 2; fi
 
 if [ ! -f "${projectNameVersion}/nsis/Setup_TrustAgent.exe" ]; then
@@ -62,4 +82,4 @@ fi
 mv "${projectNameVersion}/nsis/Setup_TrustAgent.exe" "${projectNameVersion}.exe"
 
 # This is not necessary, but to zip it
-$makezip -r "${projectNameVersion}.zip" "${projectNameVersion}"
+#$makezip -r "${projectNameVersion}.zip" "${projectNameVersion}"
