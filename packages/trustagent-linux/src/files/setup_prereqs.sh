@@ -54,7 +54,9 @@ if yum_detect; then
   # 1. Add epel-release-latest-7.noarch repository
   add_package_repository https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
   # 2. Install redhat-lsb-core and other redhat-specific packages
-  yum -y install redhat-lsb redhat-lsb-core libvirt net-tools grub2-efi-modules > /dev/null 2>&1
+  yum -y install redhat-lsb libvirt net-tools > /dev/null 2>&1
+  yum -y install grub2-efi-modules > /dev/null 2>&1
+  yum -y install redhat-lsb-core > /dev/null 2>&1
 #elif aptget_detect; then
 #  
 fi
