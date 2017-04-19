@@ -290,7 +290,7 @@ public class TADataContext {
     
     public File getMeasureLogXmlFile() {
         //return Config.getInstance().getProperty("modulesXml.filename");
-        return new File(Folders.repository() + File.separator + "measureLog.xml"); // Config.getInstance().getProperty("modulesXml.filename"));
+        return new File(Folders.application() + File.separator + "var" + File.separator + "measureLog.xml"); // Config.getInstance().getProperty("modulesXml.filename"));
     }
     
     public File getTcbMeasurementXmlFile() {
