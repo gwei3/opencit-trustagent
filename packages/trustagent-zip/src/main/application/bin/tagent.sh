@@ -295,6 +295,7 @@ trustagent_uninstall() {
     fi
     remove_startup_script tagent
     rm -rf /opt/tbootxm
+	rm -rf /var/log/trustagent/measurement.*
 }
 
 # stops monit and removes its configuration
