@@ -149,9 +149,6 @@ update_tboot_grub_configuration_script() {
   fi
 }
 
-grep 'measure_nv=true extpol=embedded' 05_linux_tboot
-GRUB_CMDLINE_TBOOT="${GRUB_CMDLINE_TBOOT} measure_nv=true extpol=embedded"
-sed -i '/export TEXTDOMAIN=grub/i GRUB_CMDLINE_TBOOT="${GRUB_CMDLINE_TBOOT} measure_nv=true extpol=embedded"' ${tbootGrubConfigScript}
 # tpm 2.0
 install_tss2_tpmtools2() {
   #install tpm2-tss, tpm2-tools for tpm2
