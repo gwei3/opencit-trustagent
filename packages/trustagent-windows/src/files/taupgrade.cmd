@@ -27,7 +27,7 @@ set logfile=%package_dir%\logs\install.log
 REM ##Private Java install $JAVA_PACKAGE
 ECHO. ==Unpack JAVA JRE==
   cd "%package_dir%\jre"
-  jre.exe -qo > nul
+  call "jre.cmd"
   set JAVA_HOME=%package_dir%\jre
   cd "%package_bin%" 
 
