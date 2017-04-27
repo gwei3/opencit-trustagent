@@ -5,15 +5,20 @@
 
 #First check if /opt/trustagent/var/measureLog.xml exist; if not, run the following scripts to generate it.
 # if yes, this means module analysis has been done since trustagent is started. just copy the module analysis result to the OUTFILE file
-# specified in the environment.
-SAVED_MEASUREMENT=/opt/trustagent/var/measureLog.xml
+# specified in the environment. ### rksavino: this section no longer needed because it runs on tagent start only now
+#SAVED_MEASUREMENT=/opt/trustagent/var/measureLog.xml
 OUTFILE=${OUTFILE:-/opt/trustagent/var/measureLog.xml}
-IS_SAVED=0
-if [ -e "$SAVED_MEASUREMENT" ] && [ -s "$SAVED_MEASUREMENT" ]; then
-  if [ "$OUTFILE" != "$SAVED_MEASUREMENT" ]; then
-     cp -f $SAVED_MEASUREMENT $OUTFILE
-  fi
-  exit 0
+#IS_SAVED=0
+#if [ -e "$SAVED_MEASUREMENT" ] && [ -s "$SAVED_MEASUREMENT" ]; then
+#  if [ "$OUTFILE" != "$SAVED_MEASUREMENT" ]; then
+#     cp -f $SAVED_MEASUREMENT $OUTFILE
+#  fi
+#  exit 0
+#fi
+
+# remove any old module log output
+if [ -f "${OUTFILE}" ]; then
+  rm -f "${OUTFILE}"
 fi
 
 TXTSTAT=$(which txt-stat 2>/dev/null)
@@ -26,7 +31,7 @@ fi
 TXTSTAT="sudo -n $TXTSTAT"
 
 if [ -n "$1" ]; then INFILE="cat $1"; else INFILE="$TXTSTAT"; fi
-INFILE_TCB_MEASUREMENT_SHA256=${INFILE_TCB_MEASUREMENT_SHA256:-/var/log/trustagent/measurement.sha256}
+INFILE_TCB_MEASUREMENT_SHA256=${INFILE_TCB_MEASUREMENT_SHA256:-/var/log/trustagent/measurement.bin}
 # 2.0 outputs to /opt/trustagent/var/measureLog.xml
 OUTFILE=${OUTFILE:-/opt/trustagent/var/measureLog.xml}
 # 1.2 outputs to measureLog.xml in current directory
@@ -169,40 +174,44 @@ xml_pcr()
 {
   echo "$BLANK6<module>"
   echo "$BLANK8<pcrNumber>$1</pcrNumber>"
-  if [[ $4 -eq 4 ]]; then
+  #This section is for xen, but it's messing up kvm with the addition of asset tag
+  #if [[ $4 -eq 4 ]]; then
+  #  case $2 in
+  #  1)
+  #    echo "$BLANK8<name>tb_policy</name>"
+  #    ;;
+  #  2)
+  #    echo "$BLANK8<name>xen.gz</name>"
+  #    ;;
+  #  3)
+  #    echo "$BLANK8<name>vmlinuz</name>"
+  #    ;;
+  #  4)
+  #    echo "$BLANK8<name>initrd</name>"
+  #    ;;
+  #  5)
+  #    echo "$BLANK8<name>asset-tag</name>"
+  #    ;;
+  #  esac
+  #else
     case $2 in
     1)
       echo "$BLANK8<name>tb_policy</name>"
       ;;
     2)
-      echo "$BLANK8<name>xen.gz</name>"
-      ;;
-    3)
       echo "$BLANK8<name>vmlinuz</name>"
       ;;
-    4)
+    3)
       echo "$BLANK8<name>initrd</name>"
+      ;;
+    4)
+      echo "$BLANK8<name>asset-tag</name>"
       ;;
     5)
-      echo "$BLANK8<name>asset-tag</name>"
+      echo "$BLANK8<name>tbootxm</name>"
       ;;
     esac
-  else
-      case $2 in
-    1)
-      echo "$BLANK8<name>tb_policy</name>"
-      ;;
-    2)
-      echo "$BLANK8<name>vmlinuz</name>"
-      ;;
-    3)
-      echo "$BLANK8<name>initrd</name>"
-      ;;
-    4)
-      echo "$BLANK8<name>asset-tag</name>"
-      ;;
-    esac
-  fi
+  #fi
 
   echo "$BLANK8<value>$3</value>"
   echo "$BLANK6</module>"
@@ -501,22 +510,30 @@ else
     # name of the measurement. 
 	measurement_name=
     mrefs_count=`$INFILE | tr -d ' ' | grep "$measurement" | wc -l`
-    if [ $mrefs_count -eq 1 ]; then
-	  case $index in
-	    "17")
-		  # platforms before ivy bridge do not report the tboot measurement itself,
-		  # but it's the only measurement that would be in 17
-		  measurement_name="tb_policy"
-		  ;;
-		"22")
-		  # the asset tag measurement is not output like others, but it's the only 
-		  # measurement in 22
-		  measurement_name="asset-tag"
-		  ;;
-		*)
-		  measurement_name="unknown"
+    if [ $mrefs_count -eq 1 ] || [ $mrefs_count -eq 2 ]; then
+      case $index in
+        "17")
+          # platforms before ivy bridge do not report the tboot measurement itself,
+          # but it's the only measurement that would be in 17
+          measurement_name="tb_policy"
           ;;
-	  esac
+        "18")
+          # 18 contains vmlinuz
+          measurement_name="vmlinuz"
+          ;;
+        "19")
+          # 19 contains initrd
+          measurement_name="initrd"
+          ;;
+        "22")
+          # the asset tag measurement is not output like others, but it's the only
+          # measurement in 22
+          measurement_name="asset-tag"
+          ;;
+        *)
+          measurement_name="unknown"
+          ;;
+          esac
 	else
 	  # check reference to the measurement, looking for line number of "OK:<measurement>" 
 	  # (after spaces are removed... before removing spaces it would be "OK : <measurement>")
@@ -583,8 +600,8 @@ fi
 ### as a module to OUTFILE
 if [ -f "$INFILE_TCB_MEASUREMENT_SHA256" ]; then
   measurement_name="tbootxm"
-  measurement=$(cat "$INFILE_TCB_MEASUREMENT_SHA256")
-  xml_pcr2 "SHA256" "19" "$measurement" "$measurement_name" >>$OUTFILE
+  measurement=$(sha1sum "$INFILE_TCB_MEASUREMENT_SHA256" | awk '{ print $1 }')
+  xml_pcr "19" "5" "$measurement" "$measurement_name" >>$OUTFILE
 fi
 
 echo "$BLANK2$BLANK2</modules>" >>$OUTFILE
