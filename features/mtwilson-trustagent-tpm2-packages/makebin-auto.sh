@@ -32,6 +32,6 @@ if [ -z "$makeself" ]; then
     exit 1
 fi
 
-mkdir -p /root/.tmp 
 export TMPDIR=~/.tmp
+mkdir -p $TMPDIR
 $makeself --follow --nocomp "$workspace" "$targetDir/${projectNameVersion}.bin" "$projectNameVersion" ./setup.sh
