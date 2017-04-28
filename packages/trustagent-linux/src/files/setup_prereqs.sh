@@ -54,7 +54,9 @@ if yum_detect; then
   # 1. Add epel-release-latest-7.noarch repository
   add_package_repository https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
   # 2. Install redhat-lsb-core and other redhat-specific packages
-  yum -y install redhat-lsb redhat-lsb-core libvirt net-tools grub2-efi-modules > /dev/null 2>&1
+  yum -y install redhat-lsb libvirt net-tools > /dev/null 2>&1
+  yum -y install grub2-efi-modules > /dev/null 2>&1
+  yum -y install redhat-lsb-core > /dev/null 2>&1
 #elif aptget_detect; then
 #  
 fi
@@ -127,6 +129,22 @@ install_tboot_tpm2() {
     if [ -n "$TBOOT_DEB" ]; then
       dpkg -i $TBOOT_DEB
       apt-get -y install -f
+    fi
+  fi
+}
+
+update_tboot_grub_configuration_script() {
+  local tbootGrubConfigScript="/etc/grub.d/05_linux_tboot"
+  if [ -f "${tbootGrubConfigScript}" ]; then
+    grubHasAssetTag=$(grep 'measure_nv=true' ${tbootGrubConfigScript})
+    if [ -z ${grubHasAssetTag} ]; then
+      sed -i '/export TEXTDOMAIN=grub/i GRUB_CMDLINE_TBOOT="${GRUB_CMDLINE_TBOOT} measure_nv=true"' ${tbootGrubConfigScript}
+    fi
+    if [ "$TPM_VERSION" == "2.0" ]; then
+      local grubHasSha256Bank=$(grep 'extpol=embedded' ${tbootGrubConfigScript})
+      if [ -z ${grubHasSha256Bank} ]; then
+        sed -i 's|GRUB_CMDLINE_TBOOT="${GRUB_CMDLINE_TBOOT} measure_nv=true"|GRUB_CMDLINE_TBOOT="${GRUB_CMDLINE_TBOOT} measure_nv=true extpol=embedded"|g' ${tbootGrubConfigScript}
+      fi
     fi
   fi
 }
@@ -212,7 +230,8 @@ configure_grub() {
   else
     echo "cannot find tboot menuentry in /etc/grub.d"
   fi
-
+  update_tboot_grub_configuration_script
+  
   # copy grub2-efi-modules into the modules directory
   if [ -d /boot/efi/EFI/redhat ]; then
     mkdir -p /boot/efi/EFI/redhat/x86_64-efi

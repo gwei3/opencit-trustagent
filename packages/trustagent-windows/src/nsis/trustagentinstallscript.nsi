@@ -459,6 +459,7 @@ Section "Uninstall"
         # Delete Registry Keys
         DeleteRegKey HKEY_LOCAL_MACHINE "SOFTWARE\TrustAgent"
         DeleteRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\TrustAgent"
+		Delete "C:\Windows\Logs\MeasuredBoot\measurement.*"
 
 SectionEnd
 
