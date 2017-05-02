@@ -133,6 +133,22 @@ install_tboot_tpm2() {
   fi
 }
 
+update_tboot_grub_configuration_script() {
+  local tbootGrubConfigScript="/etc/grub.d/05_linux_tboot"
+  if [ -f "${tbootGrubConfigScript}" ]; then
+    grubHasAssetTag=$(grep 'measure_nv=true' ${tbootGrubConfigScript})
+    if [ -z ${grubHasAssetTag} ]; then
+      sed -i '/export TEXTDOMAIN=grub/i GRUB_CMDLINE_TBOOT="${GRUB_CMDLINE_TBOOT} measure_nv=true"' ${tbootGrubConfigScript}
+    fi
+    if [ "$TPM_VERSION" == "2.0" ]; then
+      local grubHasSha256Bank=$(grep 'extpol=embedded' ${tbootGrubConfigScript})
+      if [ -z ${grubHasSha256Bank} ]; then
+        sed -i 's|GRUB_CMDLINE_TBOOT="${GRUB_CMDLINE_TBOOT} measure_nv=true"|GRUB_CMDLINE_TBOOT="${GRUB_CMDLINE_TBOOT} measure_nv=true extpol=embedded"|g' ${tbootGrubConfigScript}
+      fi
+    fi
+  fi
+}
+
 # tpm 2.0
 install_tss2_tpmtools2() {
   #install tpm2-tss, tpm2-tools for tpm2
@@ -214,7 +230,8 @@ configure_grub() {
   else
     echo "cannot find tboot menuentry in /etc/grub.d"
   fi
-
+  update_tboot_grub_configuration_script
+  
   # copy grub2-efi-modules into the modules directory
   if [ -d /boot/efi/EFI/redhat ]; then
     mkdir -p /boot/efi/EFI/redhat/x86_64-efi
