@@ -75,7 +75,7 @@ public class TpmModule12 implements TpmModuleProvider {
     }
     
     @Override
-    public HashMap<String, byte[]> certifyKey(String keyType, byte[] keyAuth, int keyIndex, byte[] aikAuth, int aikIndex) throws IOException, TpmModule.TpmModuleException, TpmUtils.TpmBytestreamResouceException, TpmUtils.TpmUnsignedConversionException {
+    public HashMap<String, byte[]> certifyKey(String keyType, byte[] keyAuth, int keyIndex, byte[] aikAuth, String aikIndex) throws IOException, TpmModule.TpmModuleException, TpmUtils.TpmBytestreamResouceException, TpmUtils.TpmUnsignedConversionException {
     	return TpmModule.certifyKey(keyType, keyAuth, keyIndex, aikAuth, aikIndex);
     }
     
@@ -88,10 +88,10 @@ public class TpmModule12 implements TpmModuleProvider {
             log.debug("Index exists. Releasing index...");
             nvRelease(ownerAuth, index);
             log.debug("Creating new index...");
-            nvDefine(ownerAuth, randPasswd, index, 20, "AUTHWRITE");
+            nvDefine(ownerAuth, randPasswd, index, 32, "AUTHWRITE");
         } else {
             log.debug("Index does not exist. Creating it...");
-            nvDefine(ownerAuth, randPasswd, index, 20, "AUTHWRITE");
+            nvDefine(ownerAuth, randPasswd, index, 32, "AUTHWRITE");
         }        
         nvWrite(randPasswd, index, assetTagHash);
         log.debug("Provisioned asset tag");
@@ -103,7 +103,7 @@ public class TpmModule12 implements TpmModuleProvider {
         log.debug("Reading asset tag for Linux TPM 1.2...");
         if(nvIndexExists(index)) {
             log.debug("Asset Tag Index {} exists", index);
-            return nvRead(ownerAuth, index, 20);
+            return nvRead(ownerAuth, index, 32);
         } else {
             throw new TpmModule.TpmModuleException("Asset Tag has not been provisoined on this TPM");
         }
@@ -115,11 +115,12 @@ public class TpmModule12 implements TpmModuleProvider {
     }
 
     @Override
-    public void nvDefine(byte[] ownerAuth, byte[] indexPassword, String index, int size, String attributes) throws TpmModule.TpmModuleException, IOException {
+    public void nvDefine(byte[] ownerAuth, byte[] indexPassword, String index, int size, String attributes) throws TpmModule.TpmModuleException, IOException {        
         log.debug("running command tpm_nvdefine -i " + index + " -s 0x" + Integer.toHexString(size) + " -x -aXXXX -oXXXX --permissions=" + attributes);
-        Map<String, String> variables = new HashMap<>();
-        variables.put("tpmOwnerPass", TpmUtils.byteArrayToHexString(ownerAuth));
-        variables.put("NvramPassword", TpmUtils.byteArrayToHexString(indexPassword));
+        Map<String, String> environmentVariables = new HashMap<>();                
+        loadLibraryPathToEnvironmentVariables(environmentVariables);
+        environmentVariables.put("tpmOwnerPass", TpmUtils.byteArrayToHexString(ownerAuth));
+        environmentVariables.put("NvramPassword", TpmUtils.byteArrayToHexString(indexPassword));
         CommandLine command = new CommandLine("/opt/trustagent/bin/tpm_nvdefine");
         command.addArgument("-x");
         command.addArgument("-t");
@@ -128,7 +129,7 @@ public class TpmModule12 implements TpmModuleProvider {
         command.addArgument("--permissions=" + attributes);
         command.addArgument(String.format("-s 0x%s", Integer.toHexString(size)), false);
         command.addArgument(String.format("-i %s", index), false);
-        Result result = ExecUtil.execute(command, variables);
+        Result result = ExecUtil.execute(command, environmentVariables);
         if (result.getExitCode() != 0) {
             log.error("Error running command [{}]: {}", command.getExecutable(), result.getStderr());
             throw new TpmModule.TpmModuleException(result.getStderr());
@@ -138,23 +139,30 @@ public class TpmModule12 implements TpmModuleProvider {
     }
 
     @Override
-    public void nvRelease(byte[] ownerAuth, String index) throws IOException, TpmModule.TpmModuleException {
+    public void nvRelease(byte[] ownerAuth, String index) throws IOException, TpmModule.TpmModuleException {       
         log.debug("running command tpm_nvrelease -x -t -i " + index + " -oXXXX");
-        Map<String, String> variables = new HashMap<>();
-        variables.put("tpmOwnerPass", TpmUtils.byteArrayToHexString(ownerAuth));
+        Map<String, String> environmentVariables = new HashMap<>();
+        loadLibraryPathToEnvironmentVariables(environmentVariables);
+        environmentVariables.put("tpmOwnerPass", TpmUtils.byteArrayToHexString(ownerAuth));
         CommandLine command = new CommandLine("/opt/trustagent/bin/tpm_nvrelease");
         command.addArgument("-x");
         command.addArgument("-t");
         command.addArgument("-otpmOwnerPass");
         command.addArgument(String.format("-i %s", index), false);
-        Result result = ExecUtil.execute(command, variables);
+        Result result = ExecUtil.execute(command, environmentVariables);
         if (result.getExitCode() != 0) {
             log.error("Error running command [{}]: {}", command.getExecutable(), result.getStderr());
             throw new TpmModule.TpmModuleException(result.getStderr());
         }
         log.debug("command stdout: {}", result.getStdout());
     }
-
+    public Map<String, String> loadLibraryPathToEnvironmentVariables(Map<String, String> envVariables){
+        String LD_LIBRARY_PATH = System.getenv("LD_LIBRARY_PATH");
+        if (LD_LIBRARY_PATH != null) {
+            envVariables.put("LD_LIBRARY_PATH", LD_LIBRARY_PATH);
+        }
+        return envVariables;
+    }
     @Override
     public void nvWrite(byte[] authPassword, String index, byte[] data) throws IOException, TpmModule.TpmModuleException {        
         File tmpFile = File.createTempFile("nvwrite", ".data");
@@ -163,8 +171,9 @@ public class TpmModule12 implements TpmModuleProvider {
             IOUtils.write(data, output);
 
             log.debug("running command tpm_nvwrite -x -i " + index + " -pXXXX -f " + tmpFile.getPath());
-            Map<String, String> variables = new HashMap<>();
-            variables.put("NvramPassword", TpmUtils.byteArrayToHexString(authPassword));
+            Map<String, String> environmentVariables = new HashMap<>();            
+            loadLibraryPathToEnvironmentVariables(environmentVariables);
+            environmentVariables.put("NvramPassword", TpmUtils.byteArrayToHexString(authPassword));
             CommandLine command = new CommandLine("/opt/trustagent/bin/tpm_nvwrite");
             command.addArgument("-x");
             command.addArgument("-t");
@@ -172,7 +181,7 @@ public class TpmModule12 implements TpmModuleProvider {
             command.addArgument(String.format("-i %s", index), false);
             command.addArgument("-f");
             command.addArgument(EscapeUtil.doubleQuoteEscapeShellArgument(tmpFile.getPath()));
-            Result result = ExecUtil.execute(command, variables);
+            Result result = ExecUtil.execute(command, environmentVariables);
             if (result.getExitCode() != 0) {
                 log.error("Error running command [{}]: {}", command.getExecutable(), result.getStderr());
                 throw new TpmModule.TpmModuleException(result.getStderr());
@@ -233,5 +242,6 @@ public class TpmModule12 implements TpmModuleProvider {
     public String getPcrBanks() throws IOException, TpmModule.TpmModuleException {
         return "SHA1";
     }
+
 
 }

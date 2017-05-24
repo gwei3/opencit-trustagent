@@ -42,6 +42,25 @@ mv *.cmd bin/
 mv *.exe bin/
 mv logback.xml.base configuration/
 
+# unzip the tpmtools-windows-3.0-SNAPSHOT.zip
+tpmtoolPkgName="tpmtools-windows"
+tpmtoolPkgNameVersion="${tpmtoolPkgName}-${projectVersion}"
+cd $targetDir/${projectNameVersion}
+unzip -o ${tpmtoolPkgNameVersion}.zip
+mv ${tpmtoolPkgNameVersion} tpmtools
+rm -rf ${tpmtoolPkgNameVersion}.zip
+
+# transfer jre windows from .tar.gz to self-extract exe
+cd $targetDir/${projectNameVersion}/jre
+mkdir jre-tmp
+tar -xf jre*.tar.gz --strip 1 -C jre-tmp
+#zip the jre
+cd jre-tmp && zip -r ../jre.zip *
+cd ..
+#clean up the directory
+rm -rf jre-tmp
+rm -rf jre*.tar.gz
+
 export TMPDIR=~/.tmp
 
 # instead of making a zip file, we run makesis to generate the trustagent windows installer

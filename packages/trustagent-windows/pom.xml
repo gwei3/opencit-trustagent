@@ -43,8 +43,10 @@
     
     <profiles>
         <profile>
-	    <activation>
-                <activeByDefault>true</activeByDefault>
+	    <activation>              
+		<os>
+		  <family>windows</family>
+		</os>         
 	    </activation>
             
             <dependencies>
@@ -62,6 +64,19 @@
                     <classifier>application</classifier>
                     <version>${project.version}</version>
                     <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>com.intel.mtwilson.windows.packages</groupId>
+                    <artifactId>tpmtools-windows</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>com.oracle</groupId>
+                    <artifactId>jre</artifactId>
+                    <version>1.8</version>
+                    <classifier>windows-x64</classifier>
+                    <type>tar.gz</type>
                 </dependency>	
                 <dependency>
                     <groupId>com.intel.mtwilson.linux</groupId>
@@ -96,6 +111,21 @@
                                             <outputDirectory>${makeself.directory}</outputDirectory>
                                             <destFileName>trustagent-${project.version}.zip</destFileName>
                                         </artifactItem>
+                                        <artifactItem>
+                                            <groupId>com.intel.mtwilson.windows.packages</groupId>
+                                            <artifactId>tpmtools-windows</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>zip</type>
+                                            <outputDirectory>${makeself.directory}</outputDirectory>
+                                        </artifactItem>  
+                                        <artifactItem>
+                                            <groupId>com.oracle</groupId>
+                                            <artifactId>jre</artifactId>
+                                            <version>1.8</version>
+                                            <classifier>windows-x64</classifier>
+                                            <type>tar.gz</type>
+                                            <outputDirectory>${makeself.directory}/jre</outputDirectory>
+                                        </artifactItem>                                      
                                     </artifactItems>
                                     <overWriteReleases>false</overWriteReleases>
                                     <overWriteSnapshots>true</overWriteSnapshots>
@@ -149,10 +179,10 @@
                                     <goal>copy-resources</goal>
                                 </goals>
                                 <configuration>
-                                    <outputDirectory>${makeself.directory}/tpmtool</outputDirectory>
+                                    <outputDirectory>${makeself.directory}/3rdparty</outputDirectory>
                                     <resources>
                                         <resource>
-                                            <directory>src/tpmtool</directory>
+                                            <directory>src/3rdparty</directory>
                                             <includes>
                                                 <include>**/*</include>
                                             </includes>
@@ -162,26 +192,7 @@
                                 </configuration>            
                             </execution>
                             <execution>
-                                <id>copy-resources_bootdriver</id>
-                                <phase>generate-resources</phase>
-                                <goals>
-                                    <goal>copy-resources</goal>
-                                </goals>
-                                <configuration>
-                                    <outputDirectory>${makeself.directory}/bootdriver</outputDirectory>
-                                    <resources>
-                                        <resource>
-                                            <directory>src/bootdriver</directory>
-                                            <includes>
-                                                <include>**/*</include>
-                                            </includes>
-                                            <filtering>false</filtering>
-                                        </resource>
-                                    </resources>
-                                </configuration>            
-                            </execution>
-                            <execution>
-                                <id>copy-resources_jre</id>
+                                <id>copy-resources_jre_script</id>
                                 <phase>generate-resources</phase>
                                 <goals>
                                     <goal>copy-resources</goal>

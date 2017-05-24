@@ -11,7 +11,7 @@ Name "Intel CIT Trust Agent"
 OutFile "Setup_TrustAgent.exe"
 
 # Set the default Installation Directory
-InstallDir "$PROGRAMFILES\Intel\TrustAgent"
+InstallDir "$PROGRAMFILES\Intel\Trustagent"
 
 # Set the text which prompts the user to enter the installation directory
 DirText "Please choose a directory to which you'd like to install this application."
@@ -318,14 +318,13 @@ Section "install"
         File /r "..\bin\getvmmver.cmd"
         File /r "..\bin\tasetup.cmd"
         File /r "..\bin\taupgrade.cmd"
-        File /r "..\bin\tpm_signdata.exe"
-        File /r "..\bin\tpm_unbindaeskey.exe"
-        File /r "..\tpmtool\TpmAtt.dll"
-        File /r "..\tpmtool\TPMTool.exe"
+        File /r "..\tpmtools\tpm_signdata.exe"
+        File /r "..\tpmtools\tpm_unbindaeskey.exe"
+        File /r "..\tpmtools\TpmAtt.dll"
+        File /r "..\tpmtools\TPMTool.exe"
 
         SetOutPath $INSTDIR\
 
-        File /r "..\bootdriver"
         File /r "..\configuration"
         File /r "..\env.d"
         File /r "..\hypertext"
@@ -336,7 +335,7 @@ Section "install"
         File "..\version"
         File "readme.txt"
         File "TAicon.ico"
-        File "..\tpmtool\vcredist_x64.exe"
+        File "..\3rdparty\vcredist_x64.exe"
         File "TrustAgent.exe"
         File "TrustAgentTray.exe"
         File "nocmd.vbs"
@@ -344,7 +343,6 @@ Section "install"
         File "inittraysetup.cmd"
 
 
-        ;
         # If trustagent.env file is not already created by Installer UI, copy from extracted files
         IfFileExists "$INSTDIR\trustagent.env" exists doesnotexist
         exists:
@@ -366,10 +364,10 @@ Section "install"
 
         # Create Useful Shortcuts
         CreateDirectory "$SMPROGRAMS\Intel"
-        CreateDirectory "$SMPROGRAMS\Intel\TrustAgent"
+        CreateDirectory "$SMPROGRAMS\Intel\Trustagent"
         CreateDirectory "$INSTDIR\logs"
         CreateDirectory "$INSTDIR\var"
-        CreateShortCut "$SMPROGRAMS\Intel\TrustAgent\Uninstall Example Application 1.lnk" "$INSTDIR\Uninstall.exe"
+        CreateShortCut "$SMPROGRAMS\Intel\Trustagent\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
 
         # Create Registry Keys for Add/Remove Programs in Control Panel
         WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\TrustAgent" "DisplayName" "TrustAgent"
@@ -437,16 +435,12 @@ Section "Uninstall"
         nsExec::Exec 'cmd /k schtasks /delete /tn TrustAgentTray /f'
         nsExec::Exec 'wmic process where $\"name like $\'TrustAgentTray.exe$\'$\" call terminate'
 
-
-        # Uninstall CITBOOTDRIVER
-        nsExec::Exec 'cmd /k "$INSTDIR\bootdriver\citbootdriversetup.exe" uninstall'
-
         # Remove Firewall rule
         nsExec::Exec 'cmd /k netsh advfirewall firewall delete rule name="trustagent"'
 
         # Remove files from installation directory
+		Delete $INSTDIR\vcredist_x64.exe
         Delete $INSTDIR\TrustAgent.exe
-
         Delete $INSTDIR\TrustAgentTray.exe
         Delete $INSTDIR\Uninstall.exe
         RMDir /r $INSTDIR
@@ -460,11 +454,12 @@ Section "Uninstall"
         Call un.RemoveFromPath
 
         # Delete uninstallation shortcut
-        Delete "$SMPROGRAMS\Intel\TrustAgent\Uninstall Example Application 1.lnk"
+        Delete "$SMPROGRAMS\Intel\Trustagent\Uninstall.lnk"
 
         # Delete Registry Keys
         DeleteRegKey HKEY_LOCAL_MACHINE "SOFTWARE\TrustAgent"
         DeleteRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\TrustAgent"
+		Delete "C:\Windows\Logs\MeasuredBoot\measurement.*"
 
 SectionEnd
 
@@ -530,7 +525,7 @@ Function .onInit
                 inst:
                      SetOutPath $INSTDIR\
 
-                     File "..\tpmtool\vcredist_x64.exe"
+                     File "..\3rdparty\vcredist_x64.exe"
                      ExecWait '$INSTDIR\vcredist_x64.exe /install /passive /norestart'
                      StrCpy $2 "Name like '%%Microsoft Visual C++ 2013 x64 Minimum Runtime%%'"
                      nsExec::ExecToStack 'wmic product where "$2" get name'
@@ -556,7 +551,7 @@ Function CITServerPage
                Pop $mylabel
         ${else}
                   MessageBox MB_OK "Microsoft Visual C++ not installed properly. Exiting the Trust Agent Installation.."
-                  Quit
+                  Abort
         ${endif}
         ${NSD_CreateLabel} 0 100 100% 12u "Please ensure that Intel CIT Server is running for CIT Trust Agent."
         Pop $mylabel
