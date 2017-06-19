@@ -147,6 +147,17 @@
     </dependencies>
     
     <profiles>
+	
+	<profile>
+      <id>JDK 8 Build</id>
+      <activation>
+        <jdk>[1.8,)</jdk>
+      </activation>
+      <properties>
+        <additionalparam>-Xdoclint:none</additionalparam>
+      </properties>
+    </profile>
+	
         <profile>
             <activation>
                 <property>
