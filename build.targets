@@ -1,0 +1,5 @@
+# A successful build produces the following files:
+features/mtwilson-trustagent-client-jaxrs2/target/mtwilson-trustagent-client-jaxrs2-*-javadoc.jar
+features/mtwilson-trustagent-client-jaxrs2/target/mtwilson-trustagent-client-jaxrs2-*-javadoc.zip
+packages/trustagent-linux/target/trustagent-linux-*.bin
+packages/trustagent-windows/target/trustagent-windows-*.exe
